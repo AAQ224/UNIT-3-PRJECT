@@ -4,6 +4,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import UserRegisterForm, LoginForm
 from .models import Profile
+from courses.models import ClassSubject, StudentClassEnrollment
+from .models import ParentStudentRelation
+
 
 # Create your views here.
 
@@ -57,9 +60,26 @@ def dashboard(request):
     profile = getattr(request.user, 'profile', None)
     role = profile.role if profile else 'unknown'
 
+    teacher_classes = []
+    student_enrollment = None
+    parent_children = []
+
+    if role == 'teacher':
+        teacher_classes = ClassSubject.objects.filter(teacher=request.user)
+
+    elif role == 'student':
+        student_enrollment = StudentClassEnrollment.objects.filter(
+            student=request.user
+        ).first()
+
+    elif role == 'parent':
+        parent_children = ParentStudentRelation.objects.filter(parent=request.user)
+
     context = {
         'profile': profile,
         'role': role,
+        'teacher_classes': teacher_classes,
+        'student_enrollment': student_enrollment,
+        'parent_children': parent_children,
     }
     return render(request, 'accounts/dashboard.html', context)
-
