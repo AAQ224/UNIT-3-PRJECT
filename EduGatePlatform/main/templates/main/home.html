@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Welcome to EduGate</h1>
+  <p>School learning & management platform.</p>
+
+  <section class="announcements">
+    <h2>School Announcements</h2>
+
+    {% if announcements %}
+      <div class="cards">
+        {% for ann in announcements %}
+          <article class="card {% if ann.is_important %}card-important{% endif %}">
+            <h3>{{ ann.title }}</h3>
+            <p class="meta">
+              {{ ann.get_category_display }}
+              {% if ann.start_date %} | From: {{ ann.start_date }}{% endif %}
+              {% if ann.end_date %} | To: {{ ann.end_date }}{% endif %}
+            </p>
+            <p>{{ ann.content }}</p>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p>No announcements yet.</p>
+    {% endif %}
+  </section>
+{% endblock %}
