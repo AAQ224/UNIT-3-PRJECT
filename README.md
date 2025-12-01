@@ -37,6 +37,6 @@ EduGate is an online learning management platform built using Django. The system
 - As an Admin, I can access a dashboard showing platform statistics for oversight.
 
 ## UML Diagram :
-<img width="846" height="745" alt="UML Class Diagram" src="https://github.com/user-attachments/assets/f9299150-e498-489f-8acc-c67faaad0528" />
+<img width="846" height="745" alt="UML_Class_Diagram" src="https://github.com/user-attachments/assets/d3c81b3d-c681-4396-8f93-ea829f4612c6" />
 
 ## Wireframes :
