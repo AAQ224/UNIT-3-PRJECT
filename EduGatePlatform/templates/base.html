@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EduGate</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">EduGate</div>
+            <ul class="nav-links">
+                <li><a href="{% url 'main:home' %}">Home</a></li>
+                <!-- بنزبطها بعدين يا يامي: About, Contact, Login -->
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>© 2025 EduGate Platform</p>
+    </footer>
+</body>
+</html>
