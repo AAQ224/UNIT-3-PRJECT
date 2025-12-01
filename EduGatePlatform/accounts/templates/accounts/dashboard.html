@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Dashboard</h1>
+  {% if profile %}
+    <p>Welcome, {{ profile.full_name }} ({{ profile.get_role_display }})</p>
+    <p>National ID: {{ profile.national_id }}</p>
+  {% else %}
+    <p>No profile data found.</p>
+  {% endif %}
+{% endblock %}
