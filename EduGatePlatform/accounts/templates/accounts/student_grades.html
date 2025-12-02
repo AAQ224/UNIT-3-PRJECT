@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>My Grades</h1>
+
+<h2>Homeworks</h2>
+{% if hw_subs %}
+  <table>
+    <tr>
+      <th>Subject</th>
+      <th>Homework</th>
+      <th>Grade</th>
+      <th>Due date</th>
+    </tr>
+    {% for sub in hw_subs %}
+      <tr>
+        <td>{{ sub.homework.class_subject.subject.name }}</td>
+        <td>{{ sub.homework.title }}</td>
+        <td>{% if sub.grade %}{{ sub.grade }}{% else %}-{% endif %}</td>
+        <td>{{ sub.homework.due_date }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+{% else %}
+  <p>No homework grades yet.</p>
+{% endif %}
+
+<h2>Quizzes</h2>
+{% if quiz_subs %}
+  <table>
+    <tr>
+      <th>Subject</th>
+      <th>Quiz</th>
+      <th>Grade</th>
+      <th>Due date</th>
+    </tr>
+    {% for sub in quiz_subs %}
+      <tr>
+        <td>{{ sub.quiz.class_subject.subject.name }}</td>
+        <td>{{ sub.quiz.title }}</td>
+        <td>{% if sub.grade %}{{ sub.grade }}{% else %}-{% endif %}</td>
+        <td>{{ sub.quiz.due_date }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+{% else %}
+  <p>No quiz grades yet.</p>
+{% endif %}
+{% endblock %}

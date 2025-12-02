@@ -6,6 +6,8 @@ from .forms import UserRegisterForm, LoginForm
 from .models import Profile
 from courses.models import ClassSubject, StudentClassEnrollment
 from .models import ParentStudentRelation
+from django.http import HttpResponseForbidden
+
 
 
 # Create your views here.

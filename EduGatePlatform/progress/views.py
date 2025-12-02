@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from courses.models import ClassSubject
-from .models import Lesson, Homework, Quiz
+from courses.models import ClassSubject, StudentClassEnrollment
+from .models import Lesson, Homework, Quiz, HomeworkSubmission, QuizSubmission
 from .forms import LessonForm, HomeworkForm, QuizForm
 from django.http import HttpResponseForbidden
 

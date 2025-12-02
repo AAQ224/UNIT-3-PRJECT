@@ -44,7 +44,11 @@
     {% if parent_children %}
       <ul>
         {% for rel in parent_children %}
-          <li>{{ rel.student.profile.full_name }} ({{ rel.student.username }})</li>
+          <li>
+            {{ rel.student.profile.full_name }} ({{ rel.student.username }})
+            - <a href="{% url 'accounts:parent_child_grades' rel.student.id %}">View grades</a>
+          </li>
+
         {% endfor %}
       </ul>
     {% else %}

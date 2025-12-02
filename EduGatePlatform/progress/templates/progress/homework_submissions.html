@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Homework submissions: {{ homework.title }}</h1>
+
+{% if submissions %}
+  <table>
+    <tr>
+      <th>Student</th>
+      <th>Answer</th>
+      <th>Submitted at</th>
+      <th>Grade</th>
+      <th>Action</th>
+    </tr>
+    {% for sub in submissions %}
+      <tr>
+        <td>{{ sub.student.username }}</td>
+        <td>{{ sub.answer_text|truncatechars:50 }}</td>
+        <td>{{ sub.submitted_at }}</td>
+        <td>
+          {% if sub.grade %}
+            {{ sub.grade }}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+        <td>
+          <a href="{% url 'progress:grade_homework_submission' sub.id %}">Grade</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+{% else %}
+  <p>No submissions yet.</p>
+{% endif %}
+{% endblock %}

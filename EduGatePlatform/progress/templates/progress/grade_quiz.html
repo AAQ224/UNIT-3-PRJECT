@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Grade Quiz - {{ submission.quiz.title }}</h1>
+<p>Student: {{ submission.student.username }}</p>
+<p>Answer:</p>
+<p>{{ submission.answer_text }}</p>
+
+<form method="post">
+  {% csrf_token %}
+  <label>Grade:</label>
+  <input type="number" name="grade" value="{{ submission.grade|default_if_none:'' }}">
+  <button type="submit">Save grade</button>
+</form>
+{% endblock %}
