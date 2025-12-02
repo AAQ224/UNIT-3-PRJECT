@@ -83,3 +83,22 @@ def dashboard(request):
         'parent_children': parent_children,
     }
     return render(request, 'accounts/dashboard.html', context)
+
+@login_required
+def student_subjects(request):
+    profile = request.user.profile
+
+    if profile.role != "student":
+        return HttpResponseForbidden("Not allowed")
+
+    enrollment = StudentClassEnrollment.objects.filter(student=request.user).first()
+
+    classsubjects = []
+    if enrollment:
+        classsubjects = ClassSubject.objects.filter(school_class=enrollment.school_class)
+
+    return render(request, "accounts/student_subjects.html", {
+        "classsubjects": classsubjects,
+        "enrollment": enrollment,
+    })
+
