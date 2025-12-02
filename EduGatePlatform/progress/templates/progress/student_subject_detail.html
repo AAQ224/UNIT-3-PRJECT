@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ classsubject.subject.name }}</h1>
+<p>Teacher: {{ classsubject.teacher.username }}</p>
+
+<h2>Lessons</h2>
+<ul>
+  {% for lesson in lessons %}
+    <li>{{ lesson.title }}</li>
+  {% empty %}
+    <li>No lessons.</li>
+  {% endfor %}
+</ul>
+
+<h2>Homeworks</h2>
+<ul>
+  {% for hw in homeworks %}
+    <li>
+      {{ hw.title }} (Due: {{ hw.due_date }}) -
+      <a href="{% url 'progress:homework_submit' hw.id %}">Submit</a>
+    </li>
+  {% empty %}
+    <li>No homeworks.</li>
+  {% endfor %}
+</ul>
+
+<h2>Quizzes</h2>
+<ul>
+  {% for quiz in quizzes %}
+    <li>
+      {{ quiz.title }} (Marks: {{ quiz.total_marks }}) -
+      <a href="{% url 'progress:quiz_submit' quiz.id %}">Answer</a>
+    </li>
+  {% empty %}
+    <li>No quizzes.</li>
+  {% endfor %}
+</ul>
+
+{% endblock %}

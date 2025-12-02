@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Your Subjects</h1>
+
+{% if classsubjects %}
+  <ul>
+    {% for cs in classsubjects %}
+      <li>
+        <a href="{% url 'progress:student_subject_detail' cs.id %}">
+          {{ cs.subject.name }} (Teacher: {{ cs.teacher.username }})
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>You are not assigned to a class yet.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Submit Homework: {{ homework.title }}</h1>
+
+<form method="post">
+  {% csrf_token %}
+  <textarea name="answer" rows="5" cols="50" placeholder="Write your answer..."></textarea>
+  <br>
+  <button type="submit">Submit</button>
+</form>
+
+{% endblock %}
