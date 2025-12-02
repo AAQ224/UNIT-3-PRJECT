@@ -17,7 +17,10 @@
 <a href="{% url 'progress:homework_create' classsubject.id %}">+ Add homework</a>
 <ul>
   {% for hw in homeworks %}
-    <li>{{ hw.title }} - due: {{ hw.due_date }}</li>
+    <li>
+      {{ hw.title }} - due: {{ hw.due_date }}
+      | <a href="{% url 'progress:homework_submissions' hw.id %}">View submissions</a>
+    </li>
   {% empty %}
     <li>No homeworks yet.</li>
   {% endfor %}
@@ -27,9 +30,11 @@
 <a href="{% url 'progress:quiz_create' classsubject.id %}">+ Add quiz</a>
 <ul>
   {% for quiz in quizzes %}
-    <li>{{ quiz.title }} - Marks: {{ quiz.total_marks }}</li>
+    <li>
+      {{ quiz.title }} - Marks: {{ quiz.total_marks }}
+      | <a href="{% url 'progress:quiz_submissions' quiz.id %}">View submissions</a>
+    </li>
   {% empty %}
     <li>No quizzes yet.</li>
   {% endfor %}
 </ul>
-{% endblock %}

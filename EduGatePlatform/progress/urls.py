@@ -11,5 +11,9 @@ urlpatterns = [
     path('student/subject/<int:classsubject_id>/', views.student_subject_detail, name='student_subject_detail'),
     path('student/homework/<int:homework_id>/submit/', views.homework_submit, name='homework_submit'),
     path('student/quiz/<int:quiz_id>/submit/', views.quiz_submit, name='quiz_submit'),
+    path('teacher/homework/<int:homework_id>/submissions/', views.homework_submissions, name='homework_submissions'),
+    path('teacher/homework/submission/<int:submission_id>/grade/', views.grade_homework_submission, name='grade_homework_submission'),
+    path('teacher/quiz/<int:quiz_id>/submissions/', views.quiz_submissions, name='quiz_submissions'),
+    path('teacher/quiz/submission/<int:submission_id>/grade/', views.grade_quiz_submission, name='grade_quiz_submission'),
 
 ]

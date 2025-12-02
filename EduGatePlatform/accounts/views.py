@@ -2,12 +2,12 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth.models import User
 from .forms import UserRegisterForm, LoginForm
-from .models import Profile
+from .models import Profile, ParentStudentRelation
 from courses.models import ClassSubject, StudentClassEnrollment
-from .models import ParentStudentRelation
 from django.http import HttpResponseForbidden
-
+from progress.models import HomeworkSubmission, QuizSubmission
 
 
 # Create your views here.
@@ -104,3 +104,49 @@ def student_subjects(request):
         "enrollment": enrollment,
     })
 
+@login_required
+def student_grades(request):
+    profile = request.user.profile
+    if profile.role != "student":
+        return HttpResponseForbidden("Not allowed")
+
+    hw_subs = HomeworkSubmission.objects.filter(student=request.user).select_related(
+        'homework__class_subject__subject'
+    )
+    quiz_subs = QuizSubmission.objects.filter(student=request.user).select_related(
+        'quiz__class_subject__subject'
+    )
+
+    return render(request, "accounts/student_grades.html", {
+        "hw_subs": hw_subs,
+        "quiz_subs": quiz_subs,
+    })
+
+@login_required
+def parent_child_grades(request, student_id):
+    profile = request.user.profile
+    if profile.role != "parent":
+        return HttpResponseForbidden("Not allowed")
+
+    relation_exists = ParentStudentRelation.objects.filter(
+        parent=request.user,
+        student__id=student_id
+    ).exists()
+
+    if not relation_exists:
+        return HttpResponseForbidden("Not allowed")
+
+    student = get_object_or_404(User, id=student_id)
+
+    hw_subs = HomeworkSubmission.objects.filter(student=student).select_related(
+        'homework__class_subject__subject'
+    )
+    quiz_subs = QuizSubmission.objects.filter(student=student).select_related(
+        'quiz__class_subject__subject'
+    )
+
+    return render(request, "accounts/parent_child_grades.html", {
+        "student": student,
+        "hw_subs": hw_subs,
+        "quiz_subs": quiz_subs,
+    })

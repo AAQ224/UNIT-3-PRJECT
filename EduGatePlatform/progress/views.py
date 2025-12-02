@@ -4,6 +4,7 @@ from courses.models import ClassSubject, StudentClassEnrollment
 from .models import Lesson, Homework, Quiz, HomeworkSubmission, QuizSubmission
 from .forms import LessonForm, HomeworkForm, QuizForm
 from django.http import HttpResponseForbidden
+from accounts.models import ParentStudentRelation
 
 # Create your views here.
 
@@ -160,3 +161,70 @@ def quiz_submit(request, quiz_id):
         return redirect("progress:student_subject_detail", quiz.class_subject.id)
 
     return render(request, "progress/quiz_submit.html", {"quiz": quiz})
+
+@login_required
+def (request, homework_id):
+    hw = get_object_or_404(Homework, id=homework_id)
+
+    if hw.class_subject.teacher != request.user:
+        return HttpResponseForbidden("Not allowed")
+
+    submissions = HomeworkSubmission.objects.filter(homework=hw).select_related('student')
+
+    return render(request, "progress/homework_submissions.html", {
+        "homework": hw,
+        "submissions": submissions,
+    })
+
+@login_required
+def grade_homework_submission(request, submission_id):
+    sub = get_object_or_404(HomeworkSubmission, id=submission_id)
+    hw = sub.homework
+
+    if hw.class_subject.teacher != request.user:
+        return HttpResponseForbidden("Not allowed")
+
+    if request.method == "POST":
+        grade_value = request.POST.get("grade")
+        if grade_value:
+            sub.grade = int(grade_value)
+            sub.save()
+        return redirect("progress:homework_submissions", homework_id=hw.id)
+
+    return render(request, "progress/grade_homework.html", {
+        "submission": sub,
+    })
+
+@login_required
+def quiz_submissions(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+
+    if quiz.class_subject.teacher != request.user:
+        return HttpResponseForbidden("Not allowed")
+
+    submissions = QuizSubmission.objects.filter(quiz=quiz).select_related('student')
+
+    return render(request, "progress/quiz_submissions.html", {
+        "quiz": quiz,
+        "submissions": submissions,
+    })
+
+
+@login_required
+def grade_quiz_submission(request, submission_id):
+    sub = get_object_or_404(QuizSubmission, id=submission_id)
+    quiz = sub.quiz
+
+    if quiz.class_subject.teacher != request.user:
+        return HttpResponseForbidden("Not allowed")
+
+    if request.method == "POST":
+        grade_value = request.POST.get("grade")
+        if grade_value:
+            sub.grade = int(grade_value)
+            sub.save()
+        return redirect("progress:quiz_submissions", quiz_id=quiz.id)
+
+    return render(request, "progress/grade_quiz.html", {
+        "submission": sub,
+    })
