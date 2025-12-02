@@ -4,6 +4,7 @@
 <h1>{{ classsubject.school_class.name }} - {{ classsubject.subject.name }}</h1>
 
 <h2>Lessons</h2>
+<a href="{% url 'progress:lesson_create' classsubject.id %}">+ Add lesson</a>
 <ul>
   {% for lesson in lessons %}
     <li>{{ lesson.title }} - {{ lesson.created_at }}</li>
@@ -13,6 +14,7 @@
 </ul>
 
 <h2>Homeworks</h2>
+<a href="{% url 'progress:homework_create' classsubject.id %}">+ Add homework</a>
 <ul>
   {% for hw in homeworks %}
     <li>{{ hw.title }} - due: {{ hw.due_date }}</li>
@@ -22,6 +24,7 @@
 </ul>
 
 <h2>Quizzes</h2>
+<a href="{% url 'progress:quiz_create' classsubject.id %}">+ Add quiz</a>
 <ul>
   {% for quiz in quizzes %}
     <li>{{ quiz.title }} - Marks: {{ quiz.total_marks }}</li>
