@@ -38,3 +38,20 @@ class LoginForm(AuthenticationForm):
         widget=forms.PasswordInput(attrs={'class': 'form-control'})
     )
 
+class ParentChildrenLinkForm(forms.Form):
+    parent = forms.ModelChoiceField(
+        queryset=User.objects.none(),
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    students = forms.ModelMultipleChoiceField(
+        queryset=User.objects.none(),
+        widget=forms.SelectMultiple(attrs={'class': 'form-select', 'id': 'parent_students'})
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        parent_ids = Profile.objects.filter(role='parent').values_list('user_id', flat=True)
+        self.fields['parent'].queryset = User.objects.filter(id__in=parent_ids)
+
+        student_ids = Profile.objects.filter(role='student').values_list('user_id', flat=True)
+        self.fields['students'].queryset = User.objects.filter(id__in=student_ids)

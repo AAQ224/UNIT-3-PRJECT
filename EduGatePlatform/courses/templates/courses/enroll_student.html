@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="mb-3">Enroll Student in Class</h1>
+<h1 class="mb-3">Enroll Students in Class</h1>
 
 <form method="post" class="card card-body">
   {% csrf_token %}
@@ -9,10 +9,18 @@
     {{ form.school_class.label_tag }}
     {{ form.school_class }}
   </div>
+
   <div class="mb-3">
-    {{ form.student.label_tag }}
-    {{ form.student }}
+    {{ form.students.label_tag }}
+    {{ form.students }}
   </div>
-  <button type="submit" class="btn btn-primary w-100">Enroll</button>
+
+  <button type="submit" class="btn btn-primary w-100">Enroll Selected Students</button>
 </form>
+
+<script>
+  new MultiSelectTag('students', {
+      placeholder: 'Search students'
+  });
+</script>
 {% endblock %}

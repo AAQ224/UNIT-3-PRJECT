@@ -11,5 +11,5 @@ urlpatterns = [
     path('student/subjects/', views.student_subjects, name='student_subjects'),
     path('student/grades/', views.student_grades, name='student_grades'),
     path('parent/child/<int:student_id>/grades/', views.parent_child_grades, name='parent_child_grades'),
-
+    path("link-parent-children/", views.link_parent_children, name="link_parent_children"),
 ]

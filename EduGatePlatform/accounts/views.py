@@ -3,7 +3,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from .forms import UserRegisterForm, LoginForm
+from .forms import UserRegisterForm, LoginForm, ParentChildrenLinkForm
 from .models import Profile, ParentStudentRelation
 from courses.models import ClassSubject, StudentClassEnrollment
 from django.http import HttpResponseForbidden
@@ -184,3 +184,29 @@ def parent_child_grades(request, student_id):
         "hw_subs": hw_subs,
         "quiz_subs": quiz_subs,
     })
+
+@login_required
+def link_parent_children(request):
+    profile = getattr(request.user, "profile", None)
+    is_admin = request.user.is_superuser or (profile and profile.role == "admin")
+    if not is_admin:
+        return HttpResponseForbidden("Only administrators can link parents and children.")
+
+    if request.method == "POST":
+        form = ParentChildrenLinkForm(request.POST)
+        if form.is_valid():
+            parent = form.cleaned_data['parent']
+            students = form.cleaned_data['students']
+
+            for student in students:
+                ParentStudentRelation.objects.get_or_create(
+                    parent=parent,
+                    student=student
+                )
+
+            messages.success(request, "Parent linked to selected children successfully.")
+            return redirect("accounts:dashboard")
+    else:
+        form = ParentChildrenLinkForm()
+
+    return render(request, "accounts/link_parent_children.html", {"form": form})

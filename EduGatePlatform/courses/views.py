@@ -26,19 +26,27 @@ def assign_subject_to_class(request):
 
 
 @login_required
-def enroll_student_in_class(request):
+def enroll_students_in_class(request):
     profile = getattr(request.user, "profile", None)
     is_admin = request.user.is_superuser or (profile and profile.role == "admin")
     if not is_admin:
         return HttpResponseForbidden("Only administrators can enroll students.")
 
     if request.method == "POST":
-        form = StudentEnrollmentForm(request.POST)
+        form = StudentMultiEnrollmentForm(request.POST)
         if form.is_valid():
-            form.save()
+            school_class = form.cleaned_data['school_class']
+            students = form.cleaned_data['students']
+
+            for student in students:
+                StudentClassEnrollment.objects.get_or_create(
+                    school_class=school_class,
+                    student=student
+                )
+
             return redirect("accounts:dashboard")
     else:
-        form = StudentEnrollmentForm()
+        form = StudentMultiEnrollmentForm()
 
-    return render(request, "courses/enroll_student.html", {"form": form})
+    return render(request, "courses/enroll_students.html", {"form": form})
 

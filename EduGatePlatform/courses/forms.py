@@ -20,16 +20,17 @@ class ClassSubjectForm(forms.ModelForm):
         self.fields["teacher"].queryset = User.objects.filter(id__in=teacher_ids)
 
 
-class StudentEnrollmentForm(forms.ModelForm):
-    class Meta:
-        model = StudentClassEnrollment
-        fields = ["school_class", "student"]
-        widgets = {
-            "school_class": forms.Select(attrs={"class": "form-select"}),
-            "student": forms.Select(attrs={"class": "form-select"}),
-        }
+class StudentMultiEnrollmentForm(forms.Form):
+    school_class = forms.ModelChoiceField(
+        queryset=SchoolClass.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    students = forms.ModelMultipleChoiceField(
+        queryset=User.objects.none(),
+        widget=forms.SelectMultiple(attrs={'class': 'form-select', 'id': 'students'})
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        student_ids = Profile.objects.filter(role="student").values_list("user_id", flat=True)
-        self.fields["student"].queryset = User.objects.filter(id__in=student_ids)
+        student_ids = Profile.objects.filter(role='student').values_list('user_id', flat=True)
+        self.fields['students'].queryset = User.objects.filter(id__in=student_ids)
