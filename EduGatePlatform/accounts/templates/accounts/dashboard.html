@@ -1,61 +1,71 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>Dashboard</h1>
+<h1 class="mb-3">Dashboard</h1>
 
-  {% if profile %}
-    <p>Welcome, {{ profile.full_name }} ({{ profile.get_role_display }})</p>
-    <p>National ID: {{ profile.national_id }}</p>
+{% if profile %}
+  <div class="mb-4">
+    <h5>Hello, {{ profile.full_name }} 👋</h5>
+    <p class="text-muted">
+      Role: {{ profile.get_role_display }} | National ID: {{ profile.national_id }}
+    </p>
+  </div>
+{% endif %}
+
+{% if role == "admin" %}
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">Admin Panel</h5>
+      <p class="card-text">You can manage classes, subjects, teachers and students.</p>
+      <a href="/admin/" class="btn btn-outline-primary">Open Django Admin</a>
+    </div>
+  </div>
+
+{% elif role == "teacher" %}
+  <h4>Your Classes & Subjects</h4>
+  {% if teacher_classes %}
+    <div class="row">
+      {% for cs in teacher_classes %}
+        <div class="col-md-4 mb-3">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title">{{ cs.school_class.name }}</h5>
+              <p class="card-text">{{ cs.subject.name }} ({{ cs.academic_year }})</p>
+              <a href="{% url 'progress:teacher_class_subject' cs.id %}" class="btn btn-sm btn-primary">
+                Manage lessons & homework
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
   {% else %}
-    <p>No profile data found.</p>
+    <p>No classes assigned yet.</p>
   {% endif %}
 
-  <hr>
+{% elif role == "student" %}
+  <div class="mb-3">
+    <a href="{% url 'accounts:student_subjects' %}" class="btn btn-primary me-2">My Subjects</a>
+    <a href="{% url 'accounts:student_grades' %}" class="btn btn-outline-secondary">My Grades</a>
+  </div>
 
-  {% if role == "admin" %}
-    <h2>Admin Panel (simple view)</h2>
-    <p>You can manage classes, subjects, teachers and students in the admin site.</p>
-    <p><a href="/admin/">Go to Django Admin</a></p>
-
-  {% elif role == "teacher" %}
-    <h2>Your Classes & Subjects</h2>
-    {% if teacher_classes %}
-      <ul>
-        {% for cs in teacher_classes %}
-          <li>
-            {{ cs.school_class.name }} - {{ cs.subject.name }} ({{ cs.academic_year }})
-          </li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p>No classes assigned yet.</p>
-    {% endif %}
-
-  {% elif role == "student" %}
-    <h2>Your Class</h2>
-    {% if student_enrollment %}
-      <p>You are in class: {{ student_enrollment.school_class.name }} ({{ student_enrollment.academic_year }})</p>
-    {% else %}
-      <p>You are not assigned to a class yet.</p>
-    {% endif %}
-
-  {% elif role == "parent" %}
-    <h2>Your Children</h2>
-    {% if parent_children %}
-      <ul>
-        {% for rel in parent_children %}
-          <li>
-            {{ rel.student.profile.full_name }} ({{ rel.student.username }})
-            - <a href="{% url 'accounts:parent_child_grades' rel.student.id %}">View grades</a>
-          </li>
-
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p>No children linked to your account yet.</p>
-    {% endif %}
-
+{% elif role == "parent" %}
+  <h4>Your Children</h4>
+  {% if parent_children %}
+    <ul class="list-group">
+      {% for rel in parent_children %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          {{ rel.student.profile.full_name }} ({{ rel.student.username }})
+          <a href="{% url 'accounts:parent_child_grades' rel.student.id %}" class="btn btn-sm btn-outline-primary">
+            View grades
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
   {% else %}
-    <p>Role is not set. Please contact admin.</p>
+    <p>No children linked to your account yet.</p>
   {% endif %}
+{% else %}
+  <p>Role not set. Please contact admin.</p>
+{% endif %}
 {% endblock %}
