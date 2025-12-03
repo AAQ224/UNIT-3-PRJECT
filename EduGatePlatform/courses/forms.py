@@ -25,6 +25,7 @@ class StudentMultiEnrollmentForm(forms.Form):
         queryset=SchoolClass.objects.all(),
         widget=forms.Select(attrs={'class': 'form-select'})
     )
+
     students = forms.ModelMultipleChoiceField(
         queryset=User.objects.none(),
         widget=forms.SelectMultiple(attrs={'class': 'form-select', 'id': 'students'})
@@ -32,5 +33,12 @@ class StudentMultiEnrollmentForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         student_ids = Profile.objects.filter(role='student').values_list('user_id', flat=True)
-        self.fields['students'].queryset = User.objects.filter(id__in=student_ids)
+        qs = User.objects.filter(id__in=student_ids)
+
+        self.fields['students'].queryset = qs
+        self.fields['students'].label_from_instance = (
+    lambda obj: f"{obj.profile.full_name} (ID: {obj.id})"
+)
+

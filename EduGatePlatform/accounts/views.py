@@ -7,7 +7,7 @@ from .forms import UserRegisterForm, LoginForm, ParentChildrenLinkForm
 from .models import Profile, ParentStudentRelation
 from courses.models import ClassSubject, StudentClassEnrollment
 from django.http import HttpResponseForbidden
-from progress.models import HomeworkSubmission, QuizSubmission
+from progress.models import HomeworkSubmission, QuizSubmission,Quiz,Homework
 
 
 # Create your views here.
