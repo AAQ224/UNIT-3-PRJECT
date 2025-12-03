@@ -19,8 +19,10 @@
 </form>
 
 <script>
-  new MultiSelectTag('students', {
+  document.addEventListener('DOMContentLoaded', function () {
+    new MultiSelectTag('students', {
       placeholder: 'Search students'
+    });
   });
 </script>
 {% endblock %}
