@@ -19,12 +19,22 @@
   </div>
   <div class="card-body">
 
+    <h6 class="mb-3">User & Relations Management</h6>
     <a href="{% url 'accounts:register' %}" class="btn btn-outline-primary mb-2 w-100">
       ➕ Add User (Teacher / Student / Parent)
     </a>
+    <a href="{% url 'accounts:link_parent_children' %}" class="btn btn-outline-info mb-2 w-100">
+      🔗 Link Parent to Children
+    </a>
+    
+    <hr>
 
-    <a href="{% url 'main:create_class' %}" class="btn btn-outline-secondary mb-2 w-100">
-      🏫 Create School Class
+    <h6 class="mb-3">Courses & Classes Management</h6>
+    <a href="{% url 'main:schoolclass_list' %}" class="btn btn-outline-secondary mb-2 w-100">
+      🏫 Manage School Classes (Edit/Delete)
+    </a>
+    <a href="{% url 'courses:subject_list' %}" class="btn btn-outline-secondary mb-2 w-100">
+      📚 Manage Subjects (Edit/Delete)
     </a>
     <a href="{% url 'courses:subject_create' %}" class="btn btn-outline-secondary mb-2 w-100">
     📚 Create Subject
@@ -34,35 +44,27 @@
 </a>
 
     <a href="{% url 'courses:assign_subject' %}" class="btn btn-outline-warning mb-2 w-100">
-      📘 Assign Subject & Teacher to Class
+      📘 Assign Subject to Class & Teacher
+    </a>
+    <a href="{% url 'courses:enroll_student' %}" class="btn btn-outline-warning mb-2 w-100">
+      👥 Enroll Students in Class
     </a>
 
-    <a href="{% url 'courses:enroll_student' %}" class="btn btn-outline-success mb-2 w-100">
-  👨‍🎓 Enroll Multiple Students in Class
-</a>
-
-<a href="{% url 'accounts:link_parent_children' %}" class="btn btn-outline-dark mb-2 w-100">
-  👨‍👩‍👧 Link Parent to Children
-</a>
-
-
-    <a href="{% url 'main:add_announcement' %}" class="btn btn-outline-info mb-2 w-100">
-      📢 Add Announcement
+    <hr>
+    
+    <h6 class="mb-3">Platform Management</h6>
+    <a href="{% url 'main:add_announcement' %}" class="btn btn-outline-success mb-2 w-100">
+      📢 Add School Announcement
     </a>
-
-    <a href="/admin/" class="btn btn-dark w-100">
-      🔧 Open Django Admin
-    </a>
-  </div>
+    </div>
 </div>
 {% endif %}
 
-
 {% if role == "teacher" %}
-  <h4>Your Classes & Subjects</h4>
-  {% if teacher_classes %}
+  <h4>Your Assigned Classes</h4>
+  {% if class_subjects %}
     <div class="row">
-      {% for cs in teacher_classes %}
+      {% for cs in class_subjects %}
         <div class="col-md-4 mb-3">
           <div class="card h-100">
             <div class="card-body">
@@ -88,21 +90,17 @@
 
 {% elif role == "parent" %}
   <h4>Your Children</h4>
-  {% if parent_children %}
-    <ul class="list-group">
-      {% for rel in parent_children %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          {{ rel.student.profile.full_name }} ({{ rel.student.username }})
-          <a href="{% url 'accounts:parent_child_grades' rel.student.id %}" class="btn btn-sm btn-outline-primary">
-            View grades
-          </a>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>No children linked to your account yet.</p>
-  {% endif %}
-{% else %}
-  <p>Role not set. Please contact admin.</p>
+  {% if parent_children %}\
+    <ul class="list-group">\
+      {% for rel in parent_children %}\
+        <li class="list-group-item d-flex justify-content-between align-items-center">\
+          {{ rel.student.profile.full_name }} ({{ rel.student.username }})\
+          <a href="{% url 'accounts:parent_child_grades' rel.student.id %}" class="btn btn-sm btn-info">View Grades</a>\
+        </li>\
+      {% endfor %}\
+    </ul>\
+  {% else %}\
+    <p>No children linked yet.</p>\
+  {% endif %}\
 {% endif %}
 {% endblock %}
