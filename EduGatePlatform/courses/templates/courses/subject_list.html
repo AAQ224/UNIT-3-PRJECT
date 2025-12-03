@@ -1,24 +1,25 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Classes</h1>
-<a class="btn btn-primary mb-3" href="{% url 'courses:assign_subject' %}">➕ Add Class</a>
+<h1>Subjects Management</h1>
+<a class="btn btn-primary mb-3" href="{% url 'courses:subject_create' %}">➕ Create New Subject</a>
 <table class="table">
-  <thead><tr><th>#</th><th>Name</th><th>Actions</th></tr></thead>
+  <thead><tr><th>#</th><th>Name</th><th>Code</th><th>Actions</th></tr></thead>
   <tbody>
-    {% for c in items %}
+    {% for s in subjects %}
     <tr>
       <td>{{ forloop.counter }}</td>
-      <td>{{ c.name }}</td>
+      <td>{{ s.name }}</td>
+      <td>{{ s.code }}</td>
       <td>
-        <a class="btn btn-sm btn-outline-info" href="{% url 'courses:schoolclass_edit' c.id %}">Edit</a>
-        <form method="post" action="{% url 'courses:schoolclass_delete' c.id %}" class="d-inline" onsubmit="return confirm('Delete?');">
+        <a class="btn btn-sm btn-outline-info" href="{% url 'courses:subject_update' s.id %}">Edit</a>
+        <form method="post" action="{% url 'courses:subject_delete' s.id %}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete subject {{ s.name }}?');">
           {% csrf_token %}
           <button class="btn btn-sm btn-outline-danger">Delete</button>
         </form>
       </td>
     </tr>
     {% empty %}
-    <tr><td colspan="3">No classes yet.</td></tr>
+    <tr><td colspan="4">No subjects yet.</td></tr>
     {% endfor %}
   </tbody>
 </table>

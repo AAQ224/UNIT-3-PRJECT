@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Delete School Class</h1>
+
+<div class="alert alert-danger" role="alert">
+  <p>Are you sure you want to delete the class: <strong>{{ school_class.name }} (Grade {{ school_class.grade_level }})</strong>?</p>
+  <p><strong>Warning:</strong> This action cannot be undone and may affect related assignments and student enrollments.</p>
+</div>
+
+
+<form method="post">
+    {% csrf_token %}
+    <button class="btn btn-danger">Yes, Delete</button>
+    <a class="btn btn-secondary" href="{% url 'main:schoolclass_list' %}">Cancel</a>
+</form>
+{% endblock %}
