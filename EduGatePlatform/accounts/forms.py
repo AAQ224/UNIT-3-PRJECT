@@ -5,16 +5,21 @@ from .models import Profile
 
 
 class UserRegisterForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput)  
-    confirm_password = forms.CharField(widget=forms.PasswordInput) 
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
 
     class Meta:
         model = User
         fields = ['username', 'email']
 
-    full_name = forms.CharField(max_length=150)
-    national_id = forms.CharField(max_length=20)
-    role = forms.ChoiceField(choices=Profile.ROLE_CHOICES)
+    full_name = forms.CharField(max_length=150, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    national_id = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    role = forms.ChoiceField(
+        choices=Profile.ROLE_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
+    email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control'}))
 
     def clean(self):
         cleaned_data = super().clean()
@@ -26,5 +31,10 @@ class UserRegisterForm(forms.ModelForm):
 
 
 class LoginForm(AuthenticationForm):
-    username = forms.CharField()  
-    password = forms.CharField(widget=forms.PasswordInput)  
+    username = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control'})
+    )
+
