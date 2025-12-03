@@ -1,16 +1,25 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>Login</h1>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.non_field_errors }}
-    <div>
-      {{ form.username.label_tag }} {{ form.username }}
-    </div>
-    <div>
-      {{ form.password.label_tag }} {{ form.password }}
-    </div>
-    <button type="submit">Login</button>
-  </form>
+<div class="row justify-content-center">
+  <div class="col-md-5">
+    <h1 class="h3 mb-3">Login</h1>
+
+    <form method="post" class="card card-body">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <div class="mb-3">
+        {{ form.username.label_tag }}
+        {{ form.username|add_class:"form-control" }}
+      </div>
+      <div class="mb-3">
+        {{ form.password.label_tag }}
+        {{ form.password|add_class:"form-control" }}
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">Login</button>
+    </form>
+  </div>
+</div>
 {% endblock %}

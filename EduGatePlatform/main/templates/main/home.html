@@ -1,28 +1,39 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>Welcome to EduGate</h1>
-  <p>School learning & management platform.</p>
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h1 class="mb-3">Welcome to EduGate</h1>
+      <p class="text-muted">
+        A simple school platform for managing classes, subjects, lessons, homework, quizzes,
+        students and parents.
+      </p>
+    </div>
+  </div>
 
-  <section class="announcements">
-    <h2>School Announcements</h2>
+  <h2 class="h4">School Announcements</h2>
 
-    {% if announcements %}
-      <div class="cards">
-        {% for ann in announcements %}
-          <article class="card {% if ann.is_important %}card-important{% endif %}">
-            <h3>{{ ann.title }}</h3>
-            <p class="meta">
-              {{ ann.get_category_display }}
-              {% if ann.start_date %} | From: {{ ann.start_date }}{% endif %}
-              {% if ann.end_date %} | To: {{ ann.end_date }}{% endif %}
-            </p>
-            <p>{{ ann.content }}</p>
-          </article>
-        {% endfor %}
-      </div>
-    {% else %}
-      <p>No announcements yet.</p>
-    {% endif %}
-  </section>
+  {% if announcements %}
+    <div class="row">
+      {% for ann in announcements %}
+        <div class="col-md-4 mb-3">
+          <div class="card h-100 {% if ann.is_important %}border-danger{% endif %}">
+            <div class="card-body">
+              <h5 class="card-title">
+                {% if ann.is_important %}🔥 {% endif %}{{ ann.title }}
+              </h5>
+              <p class="card-subtitle mb-2 text-muted">
+                {{ ann.get_category_display }}
+                {% if ann.start_date %} | From: {{ ann.start_date }}{% endif %}
+                {% if ann.end_date %} | To: {{ ann.end_date }}{% endif %}
+              </p>
+              <p class="card-text mt-2">{{ ann.content }}</p>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-muted">No announcements yet.</p>
+  {% endif %}
 {% endblock %}
