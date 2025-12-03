@@ -163,7 +163,8 @@ def quiz_submit(request, quiz_id):
     return render(request, "progress/quiz_submit.html", {"quiz": quiz})
 
 @login_required
-def (request, homework_id):
+def homework_submissions(request, homework_id):
+
     hw = get_object_or_404(Homework, id=homework_id)
 
     if hw.class_subject.teacher != request.user:
