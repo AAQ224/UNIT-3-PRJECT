@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from .models import SchoolClass, Subject, ClassSubject, StudentClassEnrollment
 from accounts.models import Profile
 
+
 class ClassSubjectForm(forms.ModelForm):
     class Meta:
         model = ClassSubject
@@ -42,3 +43,11 @@ class StudentMultiEnrollmentForm(forms.Form):
     lambda obj: f"{obj.profile.full_name} (ID: {obj.id})"
 )
 
+class SubjectForm(forms.ModelForm):
+    class Meta:
+        model = Subject
+        fields = ["name", "description"]  # عدّل حسب موديلكم
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control"}),
+            "description": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+        }
