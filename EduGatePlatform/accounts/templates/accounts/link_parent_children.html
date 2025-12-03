@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-3">Link Parent to Children</h1>
+
+<form method="post" class="card card-body">
+  {% csrf_token %}
+  <div class="mb-3">
+    {{ form.parent.label_tag }}
+    {{ form.parent }}
+  </div>
+
+  <div class="mb-3">
+    {{ form.students.label_tag }}
+    {{ form.students }}
+  </div>
+
+  <button type="submit" class="btn btn-primary w-100">Link Parent</button>
+</form>
+
+<script>
+  new MultiSelectTag('parent_students', {
+      placeholder: 'Search students'
+  });
+</script>
+{% endblock %}
