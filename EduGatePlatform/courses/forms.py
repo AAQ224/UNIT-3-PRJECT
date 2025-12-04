@@ -46,8 +46,9 @@ class StudentMultiEnrollmentForm(forms.Form):
 class SubjectForm(forms.ModelForm):
     class Meta:
         model = Subject
-        fields = ["name", "description"]  # عدّل حسب موديلكم
+        fields = ["name", "code", "description"]  
         widgets = {
             "name": forms.TextInput(attrs={"class": "form-control"}),
+            'code': forms.TextInput(attrs={'class': 'form-control'}), # تطبيق Bootstrap
             "description": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
         }

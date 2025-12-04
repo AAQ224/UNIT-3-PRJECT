@@ -1,36 +1,30 @@
 {% extends "base.html" %}
-
-{% block title %}Grade Quiz: {{ submission.quiz.title }}{% endblock %}
-
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-8">
         <div class="card shadow-lg mt-3">
-            <div class="card-header bg-warning text-dark">
-                <h4 class="mb-0"><i class="fas fa-check-circle me-2"></i> Grade Quiz: {{ submission.quiz.title }}</h4>
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0"><i class="fas fa-check-circle me-2"></i> Grade Quiz Submission: {{ submission.quiz.title }}</h4>
             </div>
             <div class="card-body">
                 <h5 class="card-title mb-3">
                     Student: <span class="badge bg-primary">{{ submission.student.profile.full_name }}</span>
-                    <span class="badge bg-secondary ms-2">Max Marks: {{ quiz.total_marks }}</span>
                 </h5>
                 <hr>
                 
                 <h6>Student Answer:</h6>
-                <div class="border p-3 bg-light rounded mb-4" style="white-space: pre-wrap;">
+                <div class="border p-3 bg-light rounded mb-4" style="white-space: pre-wrap; border-left: 5px solid #dc3545 !important;">
                     {{ submission.answer_text }}
                 </div>
                 
                 <form method="post">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label for="id_grade" class="form-label fw-bold">Enter Grade (Max: {{ quiz.total_marks }}):</label>
-                        <input type="number" name="grade" id="id_grade" 
-                               value="{{ submission.grade|default_if_none:'' }}" 
-                               class="form-control form-control-lg" required min="0" max="{{ quiz.total_marks }}">
+                        <label for="id_grade" class="form-label fw-bold">Enter Grade (Max: {{ submission.quiz.max_points|default_if_none:"N/A" }}):</label>
+                        <input type="number" name="grade" id="id_grade" value="{{ submission.grade|default_if_none:'' }}" class="form-control form-control-lg" min="0" {% if submission.quiz.max_points %}max="{{ submission.quiz.max_points }}"{% endif %}>
                     </div>
                     
-                    <button type="submit" class="btn btn-warning w-100 mt-3">
+                    <button type="submit" class="btn btn-danger w-100 mt-3">
                         <i class="fas fa-save me-2"></i> Save Grade
                     </button>
                     <a href="{% url 'progress:quiz_submissions' submission.quiz.id %}" class="btn btn-secondary w-100 mt-2">

@@ -7,11 +7,13 @@
                 <h4 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i> Confirm Deletion</h4>
             </div>
             <div class="card-body p-4">
-                <p class="lead">Are you absolutely sure you want to delete the subject:</p>
-                <h3 class="text-danger fw-bold text-center mb-4">{{ subject.name }} ({{ subject.code|default:"No Code" }})?</h3>
+                <p class="lead text-center">Are you absolutely sure you want to delete the assignment:</p>
+                <h3 class="text-danger fw-bold text-center mb-4">
+                    {{ assignment.subject.name }} for Class {{ assignment.school_class.name }}?
+                </h3>
                 
                 <div class="alert alert-warning text-center">
-                    This action **cannot be undone**. All related assignments and lessons will be affected.
+                    This action **cannot be undone**. All related data will be lost.
                 </div>
                 
                 <form method="post">
@@ -21,7 +23,7 @@
                         <i class="fas fa-trash me-2"></i> Yes, Delete Permanently
                     </button>
                     
-                    <a href="{% url 'courses:subject_list' %}" class="btn btn-secondary w-100 mt-2">
+                    <a href="{% url 'courses:classsubject_list' %}" class="btn btn-secondary w-100 mt-2">
                         <i class="fas fa-times me-2"></i> Cancel
                     </a>
                 </form>

@@ -49,8 +49,8 @@
                 </a>
             </div>
             <div class="col-md-6 mb-2">
-                <a href="{% url 'courses:assign_subject' %}" class="btn btn-outline-warning w-100">
-                    📘 Assign Subject to Class & Teacher
+                <a href="{% url 'courses:classsubject_list' %}" class="btn btn-outline-warning w-100">
+                    📘 Manage Subject to Class & Teacher
                 </a>
             </div>
             <div class="col-md-6 mb-2">
@@ -70,18 +70,29 @@
     </div>
 
 {% elif role == "teacher" %}
-    <h4 class="mt-4"><i class="fas fa-chalkboard-teacher me-2"></i> Your Assigned Classes</h4>
-    <hr>
-    {% if class_subjects %}
+    <div class="mt-4">
+        <h4 class="mb-3"><i class="fas fa-chalkboard-teacher me-2"></i> Your Assigned Subjects</h4>
+        <hr>
+    </div>
+    
+    {% if teacher_classes %} 
       <div class="row">
-        {% for cs in class_subjects %}
+        {% for cs in teacher_classes %}
           <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow-sm border-secondary">
-              <div class="card-body">
-                <h5 class="card-title text-primary">{{ cs.subject.name }}</h5>
-                <p class="card-text">Class: **{{ cs.school_class.name }}**</p>
+            <div class="card h-100 shadow-lg border-primary"> 
+              <div class="card-body p-4">
+                <h4 class="card-title fw-bold text-primary mb-3">
+                    <i class="fas fa-book me-2"></i> {{ cs.subject.name }} 
+                </h4> 
+                
+                <p class="card-text">
+                    <span class="fw-bold">Class:</span> <span class="badge bg-secondary fs-6">{{ cs.school_class.name }}</span>
+                </p> 
+                
                 <p class="card-text"><small class="text-muted">Academic Year: {{ cs.academic_year }}</small></p>
-                <a href="{% url 'progress:teacher_class_subject' cs.id %}" class="btn btn-sm btn-primary w-100 mt-2">
+                <hr>
+                
+                <a href="{% url 'progress:teacher_class_subject' cs.id %}" class="btn btn-primary w-100 mt-3">
                   Manage Content <i class="fas fa-arrow-right"></i>
                 </a>
               </div>
@@ -90,7 +101,7 @@
         {% endfor %}
       </div>
     {% else %}
-      <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i> No classes assigned yet.</div>
+      <div class="alert alert-info shadow-sm"><i class="fas fa-info-circle me-2"></i> No subjects have been assigned to you yet.</div>
 {% endif %}
 {% elif role == "student" %}
     <h4 class="mt-4"><i class="fas fa-user-graduate me-2"></i> Student Panel</h4>

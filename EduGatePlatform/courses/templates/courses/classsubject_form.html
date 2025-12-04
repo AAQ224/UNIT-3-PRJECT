@@ -3,35 +3,37 @@
 <div class="row justify-content-center">
     <div class="col-md-8">
         <div class="card shadow-lg mt-3">
-            <div class="card-header bg-info text-white">
+            <div class="card-header bg-primary text-white">
                 <h4 class="mb-0">
-                    {% if form.instance.pk %}
-                        <i class="fas fa-edit me-2"></i> Edit Subject: {{ form.instance.name }}
+                    <i class="fas fa-chalkboard-teacher me-2"></i> 
+                    {% if assignment %}
+                        Edit Assignment: {{ assignment.subject.name }} for {{ assignment.school_class.name }}
                     {% else %}
-                        <i class="fas fa-plus-circle me-2"></i> Create New Subject
+                        Assign Subject to Class and Teacher
                     {% endif %}
                 </h4>
             </div>
             <div class="card-body p-4">
                 <form method="post">
                     {% csrf_token %}
+                    
                     {% for field in form %}
                         <div class="mb-3">
                             <label for="{{ field.id_for_label }}" class="form-label fw-bold">{{ field.label }}</label>
                             {{ field }}
-                            {% if field.help_text %}
-                                <div class="form-text">{{ field.help_text }}</div>
-                            {% endif %}
                             {% if field.errors %}
                                 <div class="text-danger small">{{ field.errors }}</div>
                             {% endif %}
+                            {% if field.help_text %}
+                                <div class="form-text">{{ field.help_text }}</div>
+                            {% endif %}
                         </div>
                     {% endfor %}
-                    
+
                     <button type="submit" class="btn btn-success mt-3 w-100">
-                        <i class="fas fa-save me-2"></i> Save
+                        <i class="fas fa-save me-2"></i> Save Assignment
                     </button>
-                    <a href="{% url 'courses:subject_list' %}" class="btn btn-secondary w-100 mt-2">
+                    <a href="{% url 'courses:classsubject_list' %}" class="btn btn-secondary w-100 mt-2">
                         <i class="fas fa-times me-2"></i> Cancel
                     </a>
                 </form>

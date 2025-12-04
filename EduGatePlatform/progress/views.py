@@ -1,13 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.utils import timezone
 from courses.models import ClassSubject, StudentClassEnrollment
 from .models import Lesson, Homework, Quiz, HomeworkSubmission, QuizSubmission
 from .forms import LessonForm, HomeworkForm, QuizForm
 from django.http import HttpResponseForbidden
 from accounts.models import ParentStudentRelation
-from django.contrib import messages
+from accounts.models import Profile
 
-# Create your views here.
 
 @login_required
 def teacher_class_subject(request, classsubject_id):
@@ -15,6 +16,7 @@ def teacher_class_subject(request, classsubject_id):
     classsubject = get_object_or_404(ClassSubject, id=classsubject_id)
 
     if classsubject.teacher != request.user:
+        messages.error(request, "Access to this subject's management is not allowed.")
         return HttpResponseForbidden("Not allowed")
 
     lessons = Lesson.objects.filter(class_subject=classsubject)
@@ -32,6 +34,7 @@ def teacher_class_subject(request, classsubject_id):
 def lesson_create(request, classsubject_id):
     classsubject = get_object_or_404(ClassSubject, id=classsubject_id)
     if classsubject.teacher != request.user:
+        messages.error(request, "You are not authorized to create content for this subject.")
         return HttpResponseForbidden("Not allowed")
 
     if request.method == "POST":
@@ -40,8 +43,8 @@ def lesson_create(request, classsubject_id):
             lesson = form.save(commit=False)
             lesson.class_subject = classsubject
             lesson.save()
-            messages.success(request, "Lesson created successfully.")
-            return redirect("progress:teacher_class_subject", classsubject_id=classsubject.id)
+            messages.success(request, f"Lesson '{lesson.title}' created successfully.")
+            return redirect('progress:teacher_class_subject', classsubject_id=classsubject.id)
     else:
         form = LessonForm()
 
@@ -91,16 +94,17 @@ def lesson_delete(request, lesson_id):
 def homework_create(request, classsubject_id):
     classsubject = get_object_or_404(ClassSubject, id=classsubject_id)
     if classsubject.teacher != request.user:
+        messages.error(request, "You are not authorized to create content for this subject.")
         return HttpResponseForbidden("Not allowed")
 
     if request.method == "POST":
         form = HomeworkForm(request.POST)
         if form.is_valid():
-            homework = form.save(commit=False)
-            homework.class_subject = classsubject
-            homework.save()
-            messages.success(request, "Homework created successfully.")
-            return redirect("progress:teacher_class_subject", classsubject_id=classsubject.id)
+            hw = form.save(commit=False)
+            hw.class_subject = classsubject
+            hw.save()
+            messages.success(request, f"Homework '{hw.title}' created successfully.")
+            return redirect('progress:teacher_class_subject', classsubject_id=classsubject.id)
     else:
         form = HomeworkForm()
 
@@ -148,6 +152,7 @@ def homework_delete(request, homework_id):
 def quiz_create(request, classsubject_id):
     classsubject = get_object_or_404(ClassSubject, id=classsubject_id)
     if classsubject.teacher != request.user:
+        messages.error(request, "You are not authorized to create content for this subject.")
         return HttpResponseForbidden("Not allowed")
 
     if request.method == "POST":
@@ -156,8 +161,8 @@ def quiz_create(request, classsubject_id):
             quiz = form.save(commit=False)
             quiz.class_subject = classsubject
             quiz.save()
-            messages.success(request, "Quiz created successfully.")
-            return redirect("progress:teacher_class_subject", classsubject_id=classsubject.id)
+            messages.success(request, f"Quiz '{quiz.title}' created successfully.")
+            return redirect('progress:teacher_class_subject', classsubject_id=classsubject.id)
     else:
         form = QuizForm()
 
@@ -166,6 +171,7 @@ def quiz_create(request, classsubject_id):
         "classsubject": classsubject,
         "mode": "create"
     })
+
 
 @login_required
 def quiz_update(request, quiz_id):
@@ -212,6 +218,7 @@ def student_subject_detail(request, classsubject_id):
     ).exists()
 
     if not is_enrolled:
+        messages.error(request, "You are not enrolled in this class.")
         return HttpResponseForbidden("Not allowed")
 
     lessons = Lesson.objects.filter(class_subject=classsubject)
@@ -236,18 +243,28 @@ def homework_submit(request, homework_id):
     ).exists()
 
     if not is_enrolled:
+        messages.error(request, "Access denied. You are not enrolled in the relevant class.")
         return HttpResponseForbidden("Not allowed")
 
-    if request.method == "POST":
-        answer = request.POST.get("answer", "")
-        HomeworkSubmission.objects.create(
-            homework=hw,
-            student=request.user,
-            answer_text=answer,
-        )
-        return redirect("progress:student_subject_detail", hw.class_subject.id)
+    submission, created = HomeworkSubmission.objects.get_or_create(
+        homework=hw,
+        student=request.user,
+        defaults={'answer_text': ''}
+    )
 
-    return render(request, "progress/homework_submit.html", {"homework": hw})
+    if request.method == "POST":
+        answer = request.POST.get("answer_text", "")
+        
+        if answer.strip():
+            submission.answer_text = answer
+            submission.submitted_at = timezone.now()
+            submission.save()
+            messages.success(request, "Homework submitted/updated successfully.")
+            return redirect("progress:student_subject_detail", classsubject_id=hw.class_subject.id)
+        else:
+            messages.error(request, "Submission text cannot be empty.")
+            
+    return render(request, "progress/homework_submit.html", {"homework": hw, "submission": submission})
 
 @login_required
 def quiz_submit(request, quiz_id):
@@ -259,27 +276,39 @@ def quiz_submit(request, quiz_id):
     ).exists()
 
     if not is_enrolled:
+        messages.error(request, "Access denied. You are not enrolled in the relevant class.")
         return HttpResponseForbidden("Not allowed")
 
-    if request.method == "POST":
-        answer = request.POST.get("answer", "")
-        QuizSubmission.objects.create(
-            quiz=quiz,
-            student=request.user,
-            answer_text=answer,
-        )
-        return redirect("progress:student_subject_detail", quiz.class_subject.id)
+    submission, created = QuizSubmission.objects.get_or_create(
+        quiz=quiz,
+        student=request.user,
+        defaults={'answer_text': ''}
+    )
 
-    return render(request, "progress/quiz_submit.html", {"quiz": quiz})
+    if request.method == "POST":
+        answer = request.POST.get("answer_text", "")
+        
+        if answer.strip():
+            submission.answer_text = answer
+            submission.submitted_at = timezone.now()
+            submission.save()
+            messages.success(request, "Quiz submitted/updated successfully.")
+            return redirect("progress:student_subject_detail", classsubject_id=quiz.class_subject.id)
+        else:
+            messages.error(request, "Submission text cannot be empty.")
+            
+    return render(request, "progress/quiz_submit.html", {"quiz": quiz, "submission": submission})
+
 
 @login_required
 def homework_submissions(request, homework_id):
     hw = get_object_or_404(Homework, id=homework_id)
 
     if hw.class_subject.teacher != request.user:
+        messages.error(request, "You are not authorized to view these submissions.")
         return HttpResponseForbidden("Not allowed")
 
-    submissions = HomeworkSubmission.objects.filter(homework=hw).select_related('student')
+    submissions = HomeworkSubmission.objects.filter(homework=hw).select_related('student__profile')
 
     return render(request, "progress/homework_submissions.html", {
         "homework": hw,
@@ -292,17 +321,30 @@ def grade_homework_submission(request, submission_id):
     hw = sub.homework
 
     if hw.class_subject.teacher != request.user:
+        messages.error(request, "You are not authorized to grade this submission.")
         return HttpResponseForbidden("Not allowed")
 
     if request.method == "POST":
         grade_value = request.POST.get("grade")
-        if grade_value:
-            sub.grade = int(grade_value)
+        
+        if grade_value and grade_value.strip():
+            try:
+                grade = int(grade_value.strip())
+                sub.grade = grade
+                sub.save()
+                messages.success(request, f"Grade {grade} saved successfully for {sub.student.username}.")
+            except ValueError:
+                messages.error(request, "Invalid grade value. Please enter a number.")
+        else:
+            sub.grade = None
             sub.save()
+            messages.info(request, "Grade cleared successfully.")
+            
         return redirect("progress:homework_submissions", homework_id=hw.id)
 
     return render(request, "progress/grade_homework.html", {
         "submission": sub,
+        "homework": hw,
     })
 
 @login_required
@@ -310,9 +352,10 @@ def quiz_submissions(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
 
     if quiz.class_subject.teacher != request.user:
+        messages.error(request, "You are not authorized to view these submissions.")
         return HttpResponseForbidden("Not allowed")
 
-    submissions = QuizSubmission.objects.filter(quiz=quiz).select_related('student')
+    submissions = QuizSubmission.objects.filter(quiz=quiz).select_related('student__profile')
 
     return render(request, "progress/quiz_submissions.html", {
         "quiz": quiz,
@@ -326,13 +369,25 @@ def grade_quiz_submission(request, submission_id):
     quiz = sub.quiz
 
     if quiz.class_subject.teacher != request.user:
+        messages.error(request, "You are not authorized to grade this submission.")
         return HttpResponseForbidden("Not allowed")
 
     if request.method == "POST":
         grade_value = request.POST.get("grade")
-        if grade_value:
-            sub.grade = int(grade_value)
+        
+        if grade_value and grade_value.strip():
+            try:
+                grade = int(grade_value.strip())
+                sub.grade = grade
+                sub.save()
+                messages.success(request, f"Grade {grade} saved successfully for {sub.student.username}.")
+            except ValueError:
+                messages.error(request, "Invalid grade value. Please enter a number.")
+        else:
+            sub.grade = None
             sub.save()
+            messages.info(request, "Grade cleared successfully.")
+            
         return redirect("progress:quiz_submissions", quiz_id=quiz.id)
 
     return render(request, "progress/grade_quiz.html", {

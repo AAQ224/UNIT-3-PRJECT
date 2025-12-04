@@ -1,32 +1,75 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div class="card shadow p-4">
-    <h2 class="mb-3">{{ subject.name }}</h2>
+<h1><i class="fas fa-book me-2"></i> {{ class_subject.subject.name }} ({{ class_subject.school_class.name }})</h1>
+<hr>
 
-    <p class="text-muted">
-        Teacher: <strong>{{ class_subject.teacher.get_full_name }}</strong><br>
-        Academic Year: {{ class_subject.academic_year }}
-    </p>
-
-    <hr>
-
-    <h4>Enrolled Students</h4>
-    <ul class="list-group mb-4">
-        {% for s in students %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                {{ s.user.get_full_name }} (ID: {{ s.user.id }})
-
-                <form method="post" action="{% url 'courses:remove_student_from_class' s.id %}">
-                    {% csrf_token %}
-                    <button class="btn btn-danger btn-sm">Remove</button>
-                </form>
+<div class="card shadow-lg">
+    <div class="card-header p-0">
+        <ul class="nav nav-tabs" id="studentSubjectTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="lessons-tab" data-bs-toggle="tab" data-bs-target="#lessons" type="button" role="tab" aria-controls="lessons" aria-selected="true">
+                    <i class="fas fa-chalkboard me-2"></i> Lessons
+                </button>
             </li>
-        {% empty %}
-            <li class="list-group-item">No students enrolled.</li>
-        {% endfor %}
-    </ul>
-
-    <a href="{% url 'courses:enroll_student' %}" class="btn btn-primary">Add Students</a>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="homework-tab" data-bs-toggle="tab" data-bs-target="#homework" type="button" role="tab" aria-controls="homework" aria-selected="false">
+                    <i class="fas fa-pencil-alt me-2"></i> Homework
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="quizzes-tab" data-bs-toggle="tab" data-bs-target="#quizzes" type="button" role="tab" aria-controls="quizzes" aria-selected="false">
+                    <i class="fas fa-question me-2"></i> Quizzes
+                </button>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="card-body">
+        <div class="tab-content" id="studentSubjectTabsContent">
+            
+            <div class="tab-pane fade show active" id="lessons" role="tabpanel" aria-labelledby="lessons-tab">
+                <h5>Available Lessons</h5>
+                {% if lessons %}
+                    <ul class="list-group">
+                        {% for lesson in lessons %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span class="fw-bold"><i class="fas fa-file-alt me-2 text-primary"></i> {{ lesson.title }}</span>
+                                <span class="badge bg-secondary">Published: {{ lesson.created_at|date:"M d" }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="alert alert-light">No lessons posted for this subject yet.</div>
+                {% endif %}
+            </div>
+            
+            <div class="tab-pane fade" id="homework" role="tabpanel" aria-labelledby="homework-tab">
+                <h5>Assignments (Homework)</h5>
+                {% comment %} مثال لكيفية عرض الواجبات مع زر للتسليم {% endcomment %}
+                {% if homeworks %}
+                    <ul class="list-group">
+                        {% for hw in homeworks %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="fw-bold"><i class="fas fa-clipboard-list me-2 text-warning"></i> {{ hw.title }}</span>
+                                    <small class="text-muted ms-3">Due: {{ hw.due_date|date:"M d, H:i" }}</small>
+                                </div>
+                                <a href="{% url 'progress:homework_submit' hw.id %}" class="btn btn-sm btn-outline-warning">
+                                    <i class="fas fa-upload me-1"></i> Submit
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="alert alert-light">No homework assigned yet.</div>
+                {% endif %}
+            </div>
+            
+            <div class="tab-pane fade" id="quizzes" role="tabpanel" aria-labelledby="quizzes-tab">
+                <h5>Quizzes</h5>
+                </div>
+            
+        </div>
+    </div>
 </div>
 {% endblock %}

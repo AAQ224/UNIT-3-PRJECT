@@ -4,7 +4,7 @@ from django.http import HttpResponseForbidden
 from .models import StudentClassEnrollment
 from .forms import ClassSubjectForm, StudentMultiEnrollmentForm
 from django.contrib import messages
-from .models import Subject
+from .models import Subject, ClassSubject
 from .forms import SubjectForm  
 
 # Create your views here.
@@ -13,7 +13,7 @@ def is_admin(user):
     return user.is_superuser or hasattr(user, "profile") and user.profile.role == "admin"
 
 @login_required
-def assign_subject_to_class(request):
+def classsubject_create(request):
     profile = getattr(request.user, "profile", None)
     is_admin = request.user.is_superuser or (profile and profile.role == "admin")
     if not is_admin:
@@ -23,11 +23,11 @@ def assign_subject_to_class(request):
         form = ClassSubjectForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect("accounts:dashboard")
+            return redirect("accounts:classsubject_list")
     else:
         form = ClassSubjectForm()
 
-    return render(request, "courses/assign_subject.html", {"form": form})
+    return render(request, "courses/classsubject_create.html", {"form": form})
 
 
 @login_required
@@ -97,9 +97,53 @@ def subject_update(request, subject_id):
 @user_passes_test(is_admin)
 def subject_delete(request, subject_id):
     subject = get_object_or_404(Subject, id=subject_id)
+    
     if request.method == "POST":
         name = subject.name
         subject.delete()
         messages.success(request, f"Subject '{name}' deleted.")
         return redirect("courses:subject_list")
-    return redirect("courses:subject_list")
+        
+    return render(request, "courses/subject_delete.html", {"subject": subject})
+
+@login_required
+@user_passes_test(is_admin)
+def classsubject_list(request):
+    classsubjects = ClassSubject.objects.all().select_related('school_class', 'subject', 'teacher').order_by('school_class__name', 'subject__name')
+    return render(request, "courses/classsubject_list.html", {"classsubjects": classsubjects})
+
+@login_required
+@user_passes_test(is_admin)
+def classsubject_update(request, pk):
+    classsubject = get_object_or_404(ClassSubject, pk=pk)
+
+    if request.method == 'POST':
+        form = ClassSubjectForm(request.POST, instance=classsubject)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Subject assignment updated successfully.")
+            return redirect('courses:classsubject_list')
+    else:
+        form = ClassSubjectForm(instance=classsubject)
+        
+    context = {
+        'form': form,
+        'assignment': classsubject,
+    }
+    return render(request, 'courses/classsubject_form.html', context)
+
+@login_required
+@user_passes_test(is_admin)
+def classsubject_delete(request, pk):
+    classsubject = get_object_or_404(ClassSubject, pk=pk)
+    
+    if request.method == 'POST':
+        assignment_info = f"'{classsubject.subject.name}' to '{classsubject.school_class.name}'"
+        classsubject.delete()
+        messages.success(request, f"Assignment {assignment_info} has been deleted.")
+        return redirect('courses:classsubject_list')
+        
+    context = {
+        'assignment': classsubject,
+    }
+    return render(request, 'courses/classsubject_delete.html', context)

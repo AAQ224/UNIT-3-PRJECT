@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from .forms import UserRegisterForm, LoginForm, ParentChildrenLinkForm
 from .models import Profile, ParentStudentRelation
-from courses.models import ClassSubject, StudentClassEnrollment
+from courses.models import ClassSubject, StudentClassEnrollment, SchoolClass
 from django.http import HttpResponseForbidden
 from progress.models import HomeworkSubmission, QuizSubmission,Quiz,Homework
 
@@ -70,15 +70,14 @@ def dashboard(request):
 
     is_admin = request.user.is_superuser or (profile and profile.role == 'admin')
 
-    teacher_classes = []
+    teacher_classes = [] 
     student_enrollment = None
     parent_children = []
     pending_homeworks = None
     pending_quizzes = None
 
     if role == 'teacher':
-        teacher_classes = ClassSubject.objects.filter(teacher=request.user)
-
+        teacher_classes = ClassSubject.objects.filter(teacher=request.user).select_related('school_class', 'subject')    
     elif role == 'student':
         student_enrollment = StudentClassEnrollment.objects.filter(
             student=request.user
@@ -118,7 +117,6 @@ def dashboard(request):
         'pending_quizzes': pending_quizzes,
     }
     return render(request, 'accounts/dashboard.html', context)
-
 
 @login_required
 def student_subjects(request):
