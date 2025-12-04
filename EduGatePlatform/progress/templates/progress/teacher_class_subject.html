@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="fas fa-chalkboard-teacher me-2"></i> Manage: {{ class_subject.subject.name }} ({{ class_subject.school_class.name }})</h1>
+    <h1><i class="fas fa-chalkboard-teacher me-2"></i> Manage: {{ classsubject.subject.name }} ({{ classsubject.school_class.name }})</h1>
     <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary">
         <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
     </a>
@@ -23,7 +23,7 @@
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="quizzes-tab" data-bs-toggle="tab" data-bs-target="#quizzes" type="button" role="tab" aria-controls="quizzes" aria-selected="false">
-                    <i class="fas fa-question me-2"></i> Quizzes ({{ quizzes|length }})
+                    <i class="fas fa-question-circle me-2"></i> Quizzes ({{ quizzes|length }})
                 </button>
             </li>
         </ul>
@@ -32,17 +32,21 @@
     <div class="card-body">
         <div class="tab-content" id="contentTabsContent">
             
+            {# LESSONS TAB #}
             <div class="tab-pane fade show active" id="lessons" role="tabpanel" aria-labelledby="lessons-tab">
-                <a href="{% url 'progress:lesson_create' class_subject.id %}" class="btn btn-sm btn-success mb-3">
+                <a href="{% url 'progress:lesson_create' classsubject.id %}" class="btn btn-sm btn-info mb-3">
                     <i class="fas fa-plus-circle me-1"></i> Add New Lesson
                 </a>
                 <ul class="list-group shadow-sm">
                     {% for lesson in lessons %}
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span class="fw-bold"><i class="fas fa-feather-alt me-2 text-info"></i> {{ lesson.title }}</span>
                             <div>
-                                <a href="{% url 'progress:lesson_update' lesson.id %}" class="btn btn-sm btn-info me-2"><i class="fas fa-edit"></i> Edit</a>
-                                <a href="{% url 'progress:lesson_delete' lesson.id %}" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i> Delete</a>
+                                <span class="fw-bold"><i class="fas fa-feather-alt me-2 text-info"></i> {{ lesson.title }}</span>
+                                <small class="text-muted ms-3">Created: {{ lesson.created_at|date:"M d, Y" }}</small>
+                            </div>
+                            <div>
+                                <a href="{% url 'progress:lesson_update' lesson.id %}" class="btn btn-sm btn-outline-info me-2"><i class="fas fa-edit"></i> Edit</a>
+                                <a href="{% url 'progress:lesson_delete' lesson.id %}" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i> Delete</a>
                             </div>
                         </li>
                     {% empty %}
@@ -51,7 +55,55 @@
                 </ul>
             </div>
             
+            {# HOMEWORK TAB #}
+            <div class="tab-pane fade" id="homework" role="tabpanel" aria-labelledby="homework-tab">
+                <a href="{% url 'progress:homework_create' classsubject.id %}" class="btn btn-sm btn-warning mb-3">
+                    <i class="fas fa-plus-circle me-1"></i> Add New Homework
+                </a>
+                <ul class="list-group shadow-sm">
+                    {% for hw in homeworks %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="fw-bold text-warning"><i class="fas fa-clipboard-list me-2"></i> {{ hw.title }}</span>
+                                <small class="text-muted ms-3">Due: {{ hw.due_date|date:"M d, Y" }}</small>
+                            </div>
+                            <div>
+                                <a href="{% url 'progress:homework_submissions' hw.id %}" class="btn btn-sm btn-success me-2"><i class="fas fa-users"></i> Submissions</a>
+                                <a href="{% url 'progress:homework_update' hw.id %}" class="btn btn-sm btn-outline-warning me-2"><i class="fas fa-edit"></i> Edit</a>
+                                <a href="{% url 'progress:homework_delete' hw.id %}" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i> Delete</a>
+                            </div>
+                        </li>
+                    {% empty %}
+                        <div class="alert alert-light text-center">No homeworks added yet.</div>
+                    {% endfor %}
+                </ul>
             </div>
+            
+            {# QUIZZES TAB #}
+            <div class="tab-pane fade" id="quizzes" role="tabpanel" aria-labelledby="quizzes-tab">
+                <a href="{% url 'progress:quiz_create' classsubject.id %}" class="btn btn-sm btn-danger mb-3">
+                    <i class="fas fa-plus-circle me-1"></i> Add New Quiz
+                </a>
+                <ul class="list-group shadow-sm">
+                    {% for quiz in quizzes %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="fw-bold text-danger"><i class="fas fa-file-alt me-2"></i> {{ quiz.title }}</span>
+                                <small class="text-muted ms-3">Max Marks: {{ quiz.total_marks }}</small>
+                            </div>
+                            <div>
+                                <a href="{% url 'progress:quiz_submissions' quiz.id %}" class="btn btn-sm btn-success me-2"><i class="fas fa-users"></i> Submissions</a>
+                                <a href="{% url 'progress:quiz_update' quiz.id %}" class="btn btn-sm btn-outline-danger me-2"><i class="fas fa-edit"></i> Edit</a>
+                                <a href="{% url 'progress:quiz_delete' quiz.id %}" class="btn btn-sm btn-outline-dark"><i class="fas fa-trash"></i> Delete</a>
+                            </div>
+                        </li>
+                    {% empty %}
+                        <div class="alert alert-light text-center">No quizzes added yet.</div>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+        </div>
     </div>
 </div>
 {% endblock %}
