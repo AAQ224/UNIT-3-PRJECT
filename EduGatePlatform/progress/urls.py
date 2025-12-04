@@ -28,4 +28,21 @@ urlpatterns = [
     path('teacher/homework/submission/<int:submission_id>/grade/', views.grade_homework_submission, name='grade_homework_submission'),
     path('teacher/quiz/<int:quiz_id>/submissions/', views.quiz_submissions, name='quiz_submissions'),
     path('teacher/quiz/submission/<int:submission_id>/grade/', views.grade_quiz_submission, name='grade_quiz_submission'),
+
+    path('quizzes/', views.quiz_list, name='quiz_list'),
+    path('quizzes/<int:quiz_id>/', views.quiz_detail, name='quiz_detail'),
+    path('quizzes/<int:quiz_id>/start/', views.start_quiz, name='start_quiz'),
+    path('attempts/<int:attempt_id>/take/', views.take_quiz, name='take_quiz'),
+    path('attempts/<int:attempt_id>/result/', views.attempt_result, name='attempt_result'),
+
+        path('quizzes/<int:quiz_id>/questions/', views.quiz_questions_manage, name='quiz_questions_manage'),
+    path('quizzes/<int:quiz_id>/questions/create/', views.question_create, name='question_create'),
+    path('questions/<int:question_id>/edit/', views.question_update, name='question_update'),
+    path('questions/<int:question_id>/delete/', views.question_delete, name='question_delete'),
+
+    path('questions/<int:question_id>/choices/create/', views.choice_create, name='choice_create'),
+    path('choices/<int:choice_id>/edit/', views.choice_update, name='choice_update'),
+    path('choices/<int:choice_id>/delete/', views.choice_delete, name='choice_delete'),
+
+
 ]

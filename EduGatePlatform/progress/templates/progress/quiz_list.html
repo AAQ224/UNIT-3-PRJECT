@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>الاختبارات المتاحة</h1>
+
+{% if quizzes %}
+  <ul>
+    {% for quiz in quizzes %}
+      <li>
+        <a href="{% url 'progress:quiz_detail' quiz.id %}">
+          {{ quiz.title }}
+        </a>
+        - المادة: {{ quiz.class_subject }}
+        {% if quiz.due_date %}
+          - تاريخ التسليم: {{ quiz.due_date }}
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>لا توجد اختبارات حالياً.</p>
+{% endif %}
+
+{% endblock %}

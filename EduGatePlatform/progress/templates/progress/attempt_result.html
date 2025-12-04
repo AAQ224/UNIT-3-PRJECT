@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>نتيجة اختبار: {{ attempt.quiz.title }}</h2>
+
+<p>درجتك: {{ attempt.score }}%</p>
+<p>بدأت في: {{ attempt.started_at }}</p>
+<p>انتهيت في: {{ attempt.finished_at }}</p>
+
+<h3>تفاصيل الإجابات</h3>
+<ul>
+  {% for ans in attempt.answers.all %}
+    <li>
+      <strong>{{ ans.question.text }}</strong><br>
+      {% if ans.question.qtype == 'text' %}
+        إجابتك: {{ ans.text_answer|default:"(لا توجد إجابة)" }}
+      {% else %}
+        إجاباتك:
+        <ul>
+          {% for c in ans.selected_choices.all %}
+            <li>
+              {{ c.text }}
+              {% if c.is_correct %}(صحيحة){% else %}(خاطئة){% endif %}
+            </li>
+          {% empty %}
+            <li>لم تختر أي إجابة</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}

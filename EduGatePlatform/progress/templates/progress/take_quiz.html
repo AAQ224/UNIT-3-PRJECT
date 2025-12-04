@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>اختبار: {{ quiz.title }}</h2>
+
+{% if deadline %}
+  <p>آخر وقت لإنهاء الاختبار: {{ deadline }}</p>
+{% endif %}
+
+<form method="post">
+  {% csrf_token %}
+  {% for q in quiz.questions.all %}
+    <div class="question">
+      <p><strong>{{ forloop.counter }}. {{ q.text }}</strong> ({{ q.points }} نقاط)</p>
+
+      {% if q.qtype == 'text' %}
+        <textarea name="question_{{ q.id }}_text" rows="3" class="form-control"></textarea>
+
+      {% else %}
+        {% for choice in q.choices.all %}
+          <div>
+            <label>
+              <input
+                type="{% if q.qtype == 'multi' %}checkbox{% else %}radio{% endif %}"
+                name="question_{{ q.id }}"
+                value="{{ choice.id }}"
+              >
+              {{ choice.text }}
+            </label>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+    <hr>
+  {% endfor %}
+
+  <button type="submit" class="btn btn-success">تسليم الاختبار</button>
+</form>
+
+{% endblock %}

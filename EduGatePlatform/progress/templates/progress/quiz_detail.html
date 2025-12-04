@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ quiz.title }}</h2>
+
+<p>المادة: {{ quiz.class_subject }}</p>
+
+{% if quiz.description %}
+  <p>{{ quiz.description }}</p>
+{% endif %}
+
+{% if quiz.start_time %}
+  <p>يبدأ في: {{ quiz.start_time }}</p>
+{% endif %}
+
+{% if quiz.end_time %}
+  <p>ينتهي في: {{ quiz.end_time }}</p>
+{% endif %}
+
+{% if quiz.duration_minutes %}
+  <p>مدة الاختبار: {{ quiz.duration_minutes }} دقيقة</p>
+{% endif %}
+
+{% if existing_attempts %}
+  <h4>محاولاتك السابقة:</h4>
+  <ul>
+    {% for att in existing_attempts %}
+      <li>
+        نتيجة: {{ att.score }}%
+        - <a href="{% url 'progress:attempt_result' att.id %}">عرض التفاصيل</a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+<a href="{% url 'progress:start_quiz' quiz.id %}" class="btn btn-primary">
+  بدء الاختبار
+</a>
+
+{% endblock %}

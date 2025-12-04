@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>لقد قمت بتسليم هذا الاختبار بالفعل</h2>
+<p>درجتك: {{ attempt.score }}%</p>
+<p><a href="{% url 'progress:attempt_result' attempt.id %}">عرض تفاصيل المحاولة</a></p>
+{% endblock %}

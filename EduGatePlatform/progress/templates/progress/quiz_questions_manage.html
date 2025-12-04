@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Manage Questions for: {{ quiz.title }}</h2>
+
+<a href="{% url 'progress:question_create' quiz.id %}" class="btn btn-primary mb-3">
+    + Add Question
+</a>
+
+{% if questions %}
+  {% for q in questions %}
+    <div class="card mb-3 p-3">
+      <h5>
+        {{ forloop.counter }}. {{ q.text }}
+        <small class="text-muted">({{ q.get_qtype_display }}, {{ q.points }} pts)</small>
+      </h5>
+
+      <a href="{% url 'progress:question_update' q.id %}" class="btn btn-sm btn-outline-secondary">Edit Question</a>
+      <a href="{% url 'progress:question_delete' q.id %}" class="btn btn-sm btn-outline-danger">Delete Question</a>
+
+      <hr>
+      <h6>Choices:</h6>
+
+      <a href="{% url 'progress:choice_create' q.id %}" class="btn btn-sm btn-success mb-2">
+        + Add Choice
+      </a>
+
+      {% if q.choices.all %}
+        <ul>
+          {% for c in q.choices.all %}
+            <li>
+              {{ c.text }}
+              {% if c.is_correct %}
+                <strong>(Correct)</strong>
+              {% endif %}
+              -
+              <a href="{% url 'progress:choice_update' c.id %}">Edit</a> |
+              <a href="{% url 'progress:choice_delete' c.id %}">Delete</a>
+            </li>
+          {% empty %}
+            <li>No choices yet.</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No choices yet.</p>
+      {% endif %}
+    </div>
+  {% endfor %}
+{% else %}
+  <p>No questions added yet.</p>
+{% endif %}
+
+<a href="{% url 'progress:teacher_class_subject' quiz.class_subject.id %}" class="btn btn-secondary mt-3">
+    Back to Subject
+</a>
+
+{% endblock %}

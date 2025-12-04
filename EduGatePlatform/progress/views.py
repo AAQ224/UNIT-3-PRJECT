@@ -1,13 +1,25 @@
+from datetime import timedelta
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
-from courses.models import ClassSubject, StudentClassEnrollment
-from .models import Lesson, Homework, Quiz, HomeworkSubmission, QuizSubmission
-from .forms import LessonForm, HomeworkForm, QuizForm
 from django.http import HttpResponseForbidden
-from accounts.models import ParentStudentRelation
-from accounts.models import Profile
+
+from courses.models import ClassSubject, StudentClassEnrollment
+from .models import (
+    Lesson,
+    Homework,
+    Quiz,
+    HomeworkSubmission,
+    QuizSubmission,
+    Question,
+    Choice,
+    QuizAttempt,
+    Answer,
+)
+from .forms import LessonForm, HomeworkForm, QuizForm, QuestionForm, ChoiceForm
+from accounts.models import ParentStudentRelation, Profile
 
 
 @login_required
@@ -30,6 +42,7 @@ def teacher_class_subject(request, classsubject_id):
         "quizzes": quizzes,
     })
 
+
 @login_required
 def lesson_create(request, classsubject_id):
     classsubject = get_object_or_404(ClassSubject, id=classsubject_id)
@@ -50,9 +63,10 @@ def lesson_create(request, classsubject_id):
 
     return render(request, "progress/lesson_form.html", {
         "form": form,
-        "class  subject": classsubject,
+        "classsubject": classsubject,   # أصلحنا الكي هنا
         "mode": "create"
     })
+
 
 @login_required
 def lesson_update(request, lesson_id):
@@ -114,6 +128,7 @@ def homework_create(request, classsubject_id):
         "mode": "create"
     })
 
+
 @login_required
 def homework_update(request, homework_id):
     homework = get_object_or_404(Homework, id=homework_id)
@@ -135,6 +150,7 @@ def homework_update(request, homework_id):
         "mode": "update"
     })
 
+
 @login_required
 def homework_delete(request, homework_id):
     homework = get_object_or_404(Homework, id=homework_id)
@@ -147,6 +163,7 @@ def homework_delete(request, homework_id):
         return redirect("progress:teacher_class_subject", classsubject_id=homework.class_subject.id)
     
     return render(request, "progress/homework_delete.html", {"homework": homework})
+
 
 @login_required
 def quiz_create(request, classsubject_id):
@@ -193,6 +210,7 @@ def quiz_update(request, quiz_id):
         "classsubject": quiz.class_subject,
         "mode": "update"
     })
+
 
 @login_required
 def quiz_delete(request, quiz_id):
@@ -266,8 +284,14 @@ def homework_submit(request, homework_id):
             
     return render(request, "progress/homework_submit.html", {"homework": hw, "submission": submission})
 
+
 @login_required
 def quiz_submit(request, quiz_id):
+    """
+    هذا الفيو القديم لكويز نصّي (إجابة نصية واحدة).
+    نخليه كما هو لو تحتاجه لنوع معيّن من الكويزات.
+    النظام الجديد (أسئلة/خيارات) له فيوهات ثانية تحت.
+    """
     quiz = get_object_or_404(Quiz, id=quiz_id)
 
     is_enrolled = StudentClassEnrollment.objects.filter(
@@ -315,6 +339,7 @@ def homework_submissions(request, homework_id):
         "submissions": submissions,
     })
 
+
 @login_required
 def grade_homework_submission(request, submission_id):
     sub = get_object_or_404(HomeworkSubmission, id=submission_id)
@@ -347,8 +372,13 @@ def grade_homework_submission(request, submission_id):
         "homework": hw,
     })
 
+
 @login_required
 def quiz_submissions(request, quiz_id):
+    """
+    هذا الفيو ما زال يعرض تسليمات QuizSubmission (النصية).
+    للسيستم الجديد (QuizAttempt) أضفنا فيو quiz_attempts تحت.
+    """
     quiz = get_object_or_404(Quiz, id=quiz_id)
 
     if quiz.class_subject.teacher != request.user:
@@ -393,4 +423,394 @@ def grade_quiz_submission(request, submission_id):
     return render(request, "progress/grade_quiz.html", {
         "submission": sub,
         "quiz": quiz,
+    })
+
+
+# ==============================
+# نظام الكويز الجديد (أسئلة/خيارات/محاولات)
+# ==============================
+
+@login_required
+def start_quiz_attempt(request, quiz_id):
+    """
+    يبدأ محاولة كويز بنظام الأسئلة والاختيارات.
+    """
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+
+    # تأكد أن الطالب مسجل في الصف
+    is_enrolled = StudentClassEnrollment.objects.filter(
+        student=request.user,
+        school_class=quiz.class_subject.school_class
+    ).exists()
+
+    if not is_enrolled:
+        messages.error(request, "Access denied. You are not enrolled in the relevant class.")
+        return HttpResponseForbidden("Not allowed")
+
+    now = timezone.now()
+
+    # تحقق من وقت البداية والنهاية
+    if quiz.start_time and now < quiz.start_time:
+        return render(request, "progress/not_available.html", {
+            "message": "لم يبدأ الاختبار بعد."
+        })
+
+    if quiz.end_time and now > quiz.end_time:
+        return render(request, "progress/not_available.html", {
+            "message": "انتهى وقت هذا الاختبار."
+        })
+
+    # ممكن تمنع أكثر من محاولة:
+    # existing = QuizAttempt.objects.filter(quiz=quiz, student=request.user, is_submitted=True).exists()
+    # لو تبي تمنع، افعل شيء هنا
+
+    attempt = QuizAttempt.objects.create(
+        quiz=quiz,
+        student=request.user
+    )
+
+    return redirect("progress:take_quiz_attempt", attempt_id=attempt.id)
+
+
+@login_required
+def take_quiz_attempt(request, attempt_id):
+    """
+    عرض/حل أسئلة الكويز + حفظ الإجابات + التصحيح الآلي للاختيارات.
+    """
+    attempt = get_object_or_404(QuizAttempt, id=attempt_id, student=request.user)
+    quiz = attempt.quiz
+
+    # حساب الوقت النهائي
+    if quiz.duration_minutes:
+        deadline = attempt.started_at + timedelta(minutes=quiz.duration_minutes)
+    else:
+        deadline = quiz.end_time
+
+    now = timezone.now()
+
+    # لو الوقت انتهى قبل ما يسلّم
+    if deadline and now > deadline and not attempt.is_submitted:
+        attempt.is_submitted = True
+        attempt.finished_at = now
+        attempt.save()
+        return render(request, "progress/not_available.html", {
+            "message": "انتهى وقت هذا الاختبار."
+        })
+
+    if attempt.is_submitted:
+        return render(request, "progress/already_submitted.html", {
+            "attempt": attempt,
+        })
+
+    if request.method == "POST":
+        # امسح أي إجابات سابقة وأعد تخزينها
+        attempt.answers.all().delete()
+
+        for q in quiz.questions.all():
+            ans = Answer.objects.create(attempt=attempt, question=q)
+
+            if q.qtype in [Question.SINGLE, Question.MULTI]:
+                selected_ids = request.POST.getlist(f"question_{q.id}")
+                choices = Choice.objects.filter(
+                    id__in=selected_ids,
+                    question=q
+                )
+                ans.selected_choices.set(choices)
+
+            elif q.qtype == Question.TEXT:
+                text_value = request.POST.get(f"question_{q.id}_text", "").strip()
+                ans.text_answer = text_value
+                ans.save()
+
+        # التصحيح
+        total_points = 0
+        earned = 0
+
+        for q in quiz.questions.all():
+            total_points += q.points
+            ans = attempt.answers.get(question=q)
+
+            if q.qtype == Question.SINGLE:
+                selected = ans.selected_choices.first()
+                if selected and selected.is_correct:
+                    earned += q.points
+
+            elif q.qtype == Question.MULTI:
+                correct_ids = set(
+                    q.choices.filter(is_correct=True).values_list('id', flat=True)
+                )
+                selected_ids = set(
+                    ans.selected_choices.values_list('id', flat=True)
+                )
+                if selected_ids == correct_ids:
+                    earned += q.points
+
+            # TEXT: بدون تصحيح آلي (ممكن تضيف لاحقاً تصحيح يدوي للمعلم)
+
+        attempt.score = (earned / total_points * 100) if total_points > 0 else 0
+        attempt.is_submitted = True
+        attempt.finished_at = timezone.now()
+        attempt.save()
+
+        return redirect("progress:quiz_attempt_result", attempt_id=attempt.id)
+
+    return render(request, "progress/take_quiz_attempt.html", {
+        "quiz": quiz,
+        "attempt": attempt,
+        "deadline": deadline,
+    })
+
+
+@login_required
+def quiz_attempt_result(request, attempt_id):
+    """
+    عرض نتيجة محاولة كويز لنظام الأسئلة/الاختيارات.
+    """
+    attempt = get_object_or_404(QuizAttempt, id=attempt_id, student=request.user)
+
+    return render(request, "progress/quiz_attempt_result.html", {
+        "attempt": attempt,
+    })
+
+
+@login_required
+def quiz_attempts(request, quiz_id):
+    """
+    عرض جميع المحاولات على كويز معيّن (للمعلم).
+    """
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+
+    if quiz.class_subject.teacher != request.user:
+        messages.error(request, "You are not authorized to view these attempts.")
+        return HttpResponseForbidden("Not allowed")
+
+    attempts = QuizAttempt.objects.filter(
+        quiz=quiz
+    ).select_related('student__profile').order_by('-started_at')
+
+    return render(request, "progress/quiz_attempts.html", {
+        "quiz": quiz,
+        "attempts": attempts,
+    })
+
+
+@login_required
+def quiz_attempt_detail(request, attempt_id):
+    """
+    تفاصيل محاولة معينة (للمعلم) مع كل الإجابات.
+    """
+    attempt = get_object_or_404(QuizAttempt, id=attempt_id)
+    quiz = attempt.quiz
+
+    if quiz.class_subject.teacher != request.user:
+        messages.error(request, "You are not authorized to view this attempt.")
+        return HttpResponseForbidden("Not allowed")
+
+    return render(request, "progress/quiz_attempt_detail.html", {
+        "quiz": quiz,
+        "attempt": attempt,
+    })
+
+@login_required
+def quiz_list(request):
+   
+    quizzes = Quiz.objects.filter(is_active=True).order_by('-created_at')
+    return render(request, "progress/quiz_list.html", {
+        "quizzes": quizzes,
+    })
+
+
+@login_required
+def quiz_detail(request, quiz_id):
+
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+
+    attempts = QuizAttempt.objects.filter(
+        quiz=quiz,
+        student=request.user,
+        is_submitted=True
+    ).order_by('-started_at')
+
+    return render(request, "progress/quiz_detail.html", {
+        "quiz": quiz,
+        "attempts": attempts,
+    })
+
+
+@login_required
+def start_quiz(request, quiz_id):
+
+    return start_quiz_attempt(request, quiz_id)
+
+
+@login_required
+def take_quiz(request, attempt_id):
+
+    return take_quiz_attempt(request, attempt_id)
+
+
+@login_required
+def attempt_result(request, attempt_id):
+
+    return quiz_attempt_result(request, attempt_id)
+
+@login_required
+def quiz_questions_manage(request, quiz_id):
+    """
+    صفحة للمعلم تعرض كل الأسئلة والخيارات لكويز معيّن.
+    """
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+
+    # تأكد أن اللي داخل هو المعلم صاحب المادة
+    if quiz.class_subject.teacher != request.user:
+        messages.error(request, "You are not authorized to manage questions for this quiz.")
+        return HttpResponseForbidden("Not allowed")
+
+    questions = quiz.questions.all().prefetch_related('choices')
+
+    return render(request, "progress/quiz_questions_manage.html", {
+        "quiz": quiz,
+        "questions": questions,
+    })
+
+
+@login_required
+def question_create(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+
+    if quiz.class_subject.teacher != request.user:
+        return HttpResponseForbidden("Not allowed")
+
+    if request.method == "POST":
+        form = QuestionForm(request.POST)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.quiz = quiz
+            question.save()
+            messages.success(request, "Question created successfully.")
+            return redirect("progress:quiz_questions_manage", quiz_id=quiz.id)
+    else:
+        form = QuestionForm()
+
+    return render(request, "progress/question_form.html", {
+        "form": form,
+        "quiz": quiz,
+        "mode": "create",
+    })
+
+
+@login_required
+def question_update(request, question_id):
+    question = get_object_or_404(Question, id=question_id)
+    quiz = question.quiz
+
+    if quiz.class_subject.teacher != request.user:
+        return HttpResponseForbidden("Not allowed")
+
+    if request.method == "POST":
+        form = QuestionForm(request.POST, instance=question)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Question updated successfully.")
+            return redirect("progress:quiz_questions_manage", quiz_id=quiz.id)
+    else:
+        form = QuestionForm(instance=question)
+
+    return render(request, "progress/question_form.html", {
+        "form": form,
+        "quiz": quiz,
+        "mode": "update",
+    })
+
+
+@login_required
+def question_delete(request, question_id):
+    question = get_object_or_404(Question, id=question_id)
+    quiz = question.quiz
+
+    if quiz.class_subject.teacher != request.user:
+        return HttpResponseForbidden("Not allowed")
+
+    if request.method == "POST":
+        question.delete()
+        messages.success(request, "Question deleted successfully.")
+        return redirect("progress:quiz_questions_manage", quiz_id=quiz.id)
+
+    return render(request, "progress/question_delete.html", {
+        "quiz": quiz,
+        "question": question,
+    })
+
+
+@login_required
+def choice_create(request, question_id):
+    question = get_object_or_404(Question, id=question_id)
+    quiz = question.quiz
+
+    if quiz.class_subject.teacher != request.user:
+        return HttpResponseForbidden("Not allowed")
+
+    if request.method == "POST":
+        form = ChoiceForm(request.POST)
+        if form.is_valid():
+            choice = form.save(commit=False)
+            choice.question = question
+            choice.save()
+            messages.success(request, "Choice created successfully.")
+            return redirect("progress:quiz_questions_manage", quiz_id=quiz.id)
+    else:
+        form = ChoiceForm()
+
+    return render(request, "progress/choice_form.html", {
+        "form": form,
+        "quiz": quiz,
+        "question": question,
+        "mode": "create",
+    })
+
+
+@login_required
+def choice_update(request, choice_id):
+    choice = get_object_or_404(Choice, id=choice_id)
+    question = choice.question
+    quiz = question.quiz
+
+    if quiz.class_subject.teacher != request.user:
+        return HttpResponseForbidden("Not allowed")
+
+    if request.method == "POST":
+        form = ChoiceForm(request.POST, instance=choice)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Choice updated successfully.")
+            return redirect("progress:quiz_questions_manage", quiz_id=quiz.id)
+    else:
+        form = ChoiceForm(instance=choice)
+
+    return render(request, "progress/choice_form.html", {
+        "form": form,
+        "quiz": quiz,
+        "question": question,
+        "mode": "update",
+    })
+
+
+@login_required
+def choice_delete(request, choice_id):
+    choice = get_object_or_404(Choice, id=choice_id)
+    question = choice.question
+    quiz = question.quiz
+
+    if quiz.class_subject.teacher != request.user:
+        return HttpResponseForbidden("Not allowed")
+
+    if request.method == "POST":
+        choice.delete()
+        messages.success(request, "Choice deleted successfully.")
+        return redirect("progress:quiz_questions_manage", quiz_id=quiz.id)
+
+    return render(request, "progress/choice_delete.html", {
+        "quiz": quiz,
+        "question": question,
+        "choice": choice,
     })

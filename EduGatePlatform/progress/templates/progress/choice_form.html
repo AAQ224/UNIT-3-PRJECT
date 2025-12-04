@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>
+  {% if mode == "create" %}Create Choice{% else %}Edit Choice{% endif %}
+  for Question: {{ question.text }}
+</h2>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-primary">
+    {% if mode == "create" %}Create{% else %}Save{% endif %}
+  </button>
+  <a href="{% url 'progress:quiz_questions_manage' quiz.id %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}
