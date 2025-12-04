@@ -3,7 +3,7 @@
 {% block content %}
 <h1 class="mb-3">Add Announcement</h1>
 
-<form method="post" class="card card-body">
+<form method="post" enctype="multipart/form-data" class="card card-body">
   {% csrf_token %}
 
   <div class="mb-3">
@@ -34,6 +34,11 @@
   <div class="mb-3">
     {{ form.end_date.label_tag }}
     {{ form.end_date }}
+  </div>
+
+  <div class="mb-3">
+    {{ form.image.label_tag }}
+    {{ form.image }}
   </div>
 
   <button type="submit" class="btn btn-primary w-100">Save announcement</button>

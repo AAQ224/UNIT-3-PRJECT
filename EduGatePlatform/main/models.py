@@ -18,6 +18,7 @@ class Announcement(models.Model):
     end_date = models.DateField(null=True, blank=True)
     is_important = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    image = models.ImageField(upload_to="announcements/", blank=True, null=True)
 
     def __str__(self):
         return self.title
