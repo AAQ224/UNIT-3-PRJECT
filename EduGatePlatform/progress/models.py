@@ -9,6 +9,7 @@ class Lesson(models.Model):
     title = models.CharField(max_length=200)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"Lesson: {self.title} - {self.class_subject}"
@@ -20,6 +21,7 @@ class Homework(models.Model):
     description = models.TextField()
     due_date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"HW: {self.title} ({self.class_subject})"
@@ -31,6 +33,7 @@ class Quiz(models.Model):
     total_marks = models.PositiveIntegerField(default=10)
     due_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"Quiz: {self.title} ({self.class_subject})"
@@ -53,6 +56,7 @@ class QuizSubmission(models.Model):
     answer_text = models.TextField(blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
     grade = models.PositiveIntegerField(null=True, blank=True)
-
+    
     def __str__(self):
         return f"{self.student.username} submission for {self.quiz.title}"
+

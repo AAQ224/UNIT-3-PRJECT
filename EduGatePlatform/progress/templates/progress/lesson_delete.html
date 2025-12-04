@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h1 class="mb-4"><i class="fas fa-trash-alt me-2"></i> Delete Lesson</h1>
+
+        <div class="alert alert-danger shadow-sm" role="alert">
+            <h4 class="alert-heading">Confirmation</h4>
+            <p>Are you sure you want to delete the lesson: <strong>{{ lesson.title }}</strong>?</p>
+            <p><strong>Warning:</strong> This action cannot be undone.</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <button class="btn btn-danger me-2"><i class="fas fa-trash me-2"></i> Yes, Delete</button>
+            <a class="btn btn-secondary" href="{% url 'progress:teacher_class_subject' lesson.class_subject.id %}"><i class="fas fa-times me-2"></i> Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
