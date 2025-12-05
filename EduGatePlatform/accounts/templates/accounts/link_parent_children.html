@@ -5,6 +5,7 @@
 
 <form method="post" class="card card-body">
   {% csrf_token %}
+
   <div class="mb-3">
     {{ form.parent.label_tag }}
     {{ form.parent }}
@@ -17,10 +18,23 @@
 
   <button type="submit" class="btn btn-primary w-100">Link Parent</button>
 </form>
+{% endblock %}
+
+{% block extra_js %}
+<style>
+  #parent_students {
+      display: none;
+  }
+</style>
 
 <script>
-  new MultiSelectTag('parent_students', {
-      placeholder: 'Search students'
-  });
+document.addEventListener("DOMContentLoaded", function () {
+    const selectEl = document.getElementById("parent_students");
+    if (selectEl) {
+        new MultiSelectTag("parent_students", {
+            placeholder: "Search students"
+        });
+    }
+});
 </script>
 {% endblock %}

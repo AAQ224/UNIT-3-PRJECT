@@ -20,11 +20,20 @@
 {% endblock %}
 
 {% block extra_js %}
+<style>
+  #id_students {
+      display: none;
+  }
+</style>
+
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    new MultiSelectTag('students', {
-      placeholder: 'Search students'
-    });
+    const selectEl = document.querySelector("select[name='students']");
+    if (selectEl) {
+      new MultiSelectTag(selectEl.id, {
+        placeholder: 'Search students'
+      });
+    }
   });
 </script>
 {% endblock %}
