@@ -18,9 +18,10 @@
     <div class="text-end">
       <div class="px-3 py-2 bg-success text-white rounded-3 shadow-sm d-inline-block">
         <div class="small text-white-50">Your Score</div>
-        <div class="fs-4 fw-bold">
-          {{ attempt.score }} / {{ attempt.quiz.total_marks }}
-        </div>
+{% widthratio attempt.score 100 attempt.quiz.total_marks as earned_score %}
+<div class="fs-4 fw-bold">
+  {{ earned_score }} / {{ attempt.quiz.total_marks }}
+</div>
       </div>
     </div>
   </div>
@@ -38,7 +39,7 @@
           <p class="mb-2">
             <span class="fw-semibold">Percentage:</span>
             <span class="text-success fw-bold">
-              {{ attempt.percentage|floatformat:1 }}%
+              {{ attempt.score|floatformat:1 }}%
             </span>
           </p>
 

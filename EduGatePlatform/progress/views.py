@@ -554,7 +554,7 @@ def take_quiz_attempt(request, attempt_id):
         attempt.finished_at = timezone.now()
         attempt.save()
 
-        return redirect("progress:quiz_attempt", attempt_id=attempt.id)
+        return redirect("progress:quiz_attempt_result", attempt_id=attempt.id)
 
     return render(request, "progress/take_quiz.html", {
         "quiz": quiz,
