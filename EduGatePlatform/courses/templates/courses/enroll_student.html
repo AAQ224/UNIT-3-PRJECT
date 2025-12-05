@@ -17,7 +17,9 @@
 
   <button type="submit" class="btn btn-primary w-100">Enroll Selected Students</button>
 </form>
+{% endblock %}
 
+{% block extra_js %}
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     new MultiSelectTag('students', {

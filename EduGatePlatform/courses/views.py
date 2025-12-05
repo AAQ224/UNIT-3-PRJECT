@@ -5,7 +5,7 @@ from .models import StudentClassEnrollment
 from .forms import ClassSubjectForm, StudentMultiEnrollmentForm
 from django.contrib import messages
 from .models import Subject, ClassSubject
-from .forms import SubjectForm  
+from .forms import SubjectForm
 
 # Create your views here.
 

@@ -5,9 +5,9 @@ from django.db import models
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from accounts.models import Profile
-from courses.models import SchoolClass # New import
+from courses.models import SchoolClass
 from .forms import SchoolClassForm, AnnouncementForm
-from django.contrib import messages # New import
+from django.contrib import messages
 
 # Create your views here.
 
@@ -93,19 +93,76 @@ def schoolclass_delete(request, class_id):
 
 @login_required
 def add_announcement(request):
-    # ... (rest of add_announcement view) ...
     profile = getattr(request.user, "profile", None)
 
     if not (request.user.is_superuser or (profile and profile.role == "admin")):
         return HttpResponseForbidden("Only administrators can add announcements.")
 
     if request.method == "POST":
-        form = AnnouncementForm(request.POST)
+        form = AnnouncementForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            messages.success(request, "Announcement added successfully.") # Added message
+            messages.success(request, "Announcement added successfully.")
             return redirect("main:home")
     else:
         form = AnnouncementForm()
 
-    return render(request, "main/add_announcement.html", {"form": form})
+    return render(request, "main/add_announcement.html", {"form": form, "page_title": "Add Announcement",
+    })
+
+
+@login_required
+def announcement_list(request):
+    profile = getattr(request.user, "profile", None)
+
+    if not (request.user.is_superuser or (profile and profile.role == "admin")):
+        return HttpResponseForbidden("Only administrators can manage announcements.")
+
+    announcements = Announcement.objects.all().order_by('-created_at')
+
+    return render(request, "main/announcement_list.html", {
+        "announcements": announcements,
+    })
+
+
+@login_required
+def announcement_update(request, ann_id):
+    profile = getattr(request.user, "profile", None)
+
+    if not (request.user.is_superuser or (profile and profile.role == "admin")):
+        return HttpResponseForbidden("Only administrators can edit announcements.")
+
+    announcement = get_object_or_404(Announcement, id=ann_id)
+
+    if request.method == "POST":
+        form = AnnouncementForm(request.POST, request.FILES, instance=announcement)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Announcement updated successfully.")
+            return redirect("main:announcement_list")
+    else:
+        form = AnnouncementForm(instance=announcement)
+
+    return render(request, "main/add_announcement.html", {
+        "form": form,
+        "page_title": "Edit Announcement",
+    })
+
+
+@login_required
+def announcement_delete(request, ann_id):
+    profile = getattr(request.user, "profile", None)
+
+    if not (request.user.is_superuser or (profile and profile.role == "admin")):
+        return HttpResponseForbidden("Only administrators can delete announcements.")
+
+    announcement = get_object_or_404(Announcement, id=ann_id)
+
+    if request.method == "POST":
+        announcement.delete()
+        messages.success(request, "Announcement deleted successfully.")
+        return redirect("main:announcement_list")
+
+    return render(request, "main/announcement_delete.html", {
+        "announcement": announcement,
+    })

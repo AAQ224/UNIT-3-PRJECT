@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="mb-3">Add Announcement</h1>
+<h1 class="mb-3">{{ page_title|default:"Add Announcement" }}</h1>
 
 <form method="post" enctype="multipart/form-data" class="card card-body">
   {% csrf_token %}

@@ -24,13 +24,13 @@ class ClassSubjectForm(forms.ModelForm):
 class StudentMultiEnrollmentForm(forms.Form):
     school_class = forms.ModelChoiceField(
         queryset=SchoolClass.objects.all(),
-        widget=forms.Select(attrs={'class': 'form-select'})
+        widget=forms.Select(attrs={"class": "form-select"})
+    )
+    students = forms.ModelMultipleChoiceField(
+        queryset=User.objects.filter(profile__role="student"),
+        widget=forms.SelectMultiple(attrs={"class": "form-select"})
     )
 
-    students = forms.ModelMultipleChoiceField(
-        queryset=User.objects.none(),
-        widget=forms.SelectMultiple(attrs={'class': 'form-select', 'id': 'students'})
-    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
