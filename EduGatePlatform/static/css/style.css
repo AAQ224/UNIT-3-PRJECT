@@ -59,13 +59,12 @@ body {
     font-size: 14px;
 }
 
-/* static/css/style.css */
 body {
-    background-color: #f8f9fa; /* لون فاتح جداً للخلفية */
+    background-color: #f8f9fa;
     min-height: 100vh;
 }
 .navbar {
-    border-bottom: 4px solid #007bff; /* شريط سفلي أزرق */
+    border-bottom: 4px solid #007bff; 
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 h1, h2, h3 {
@@ -75,14 +74,13 @@ h1, h2, h3 {
 .card {
     border: none;
     border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* ظل أكثر وضوحاً */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     transition: transform 0.2s;
 }
 .card:hover {
     transform: translateY(-3px);
 }
 
-/* For role-based links on the Dashboard */
 .card-link-item {
     text-decoration: none;
 }
@@ -95,3 +93,10 @@ h1, h2, h3 {
     box-shadow: 0 6px 15px rgba(0, 123, 255, 0.2);
 }
 
+.answer-correct {
+  background-color: #f0fdf4;
+}
+
+.answer-wrong {
+  background-color: #fef2f2;
+}

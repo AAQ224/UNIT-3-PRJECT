@@ -1,18 +1,46 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="mb-3">Create School Class</h1>
+<div class="row justify-content-center">
+    <div class="col-md-8">
 
-<form method="post" class="card card-body">
-  {% csrf_token %}
-  <div class="mb-3">
-    {{ form.name.label_tag }}
-    {{ form.name }}
-  </div>
-  <div class="mb-3">
-    {{ form.grade_level.label_tag }}
-    {{ form.grade_level }}
-  </div>
-  <button type="submit" class="btn btn-primary w-100">Save class</button>
-</form>
+        <div class="card shadow-lg mt-4">
+
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-school me-2"></i>
+                    Create School Class
+                </h4>
+            </div>
+
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        {{ form.name.label_tag }}
+                        {{ form.name }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.grade_level.label_tag }}
+                        {{ form.grade_level }}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 mt-2">
+                        <i class="fas fa-save me-2"></i>
+                        Save Class
+                    </button>
+
+                    <a href="{% url 'main:schoolclass_list' %}" class="btn btn-secondary w-100 mt-2">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Cancel
+                    </a>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+</div>
 {% endblock %}

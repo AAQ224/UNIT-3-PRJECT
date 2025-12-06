@@ -37,18 +37,47 @@
                                 {{ quiz.class_subject.school_class.name }}
                             </p>
 
-                            {% if quiz.due_date %}
-                                <p class="card-text text-danger">
-                                    <strong>Due:</strong> {{ quiz.due_date }}
+                            <p class="card-text mb-1">
+                                <strong>Total marks:</strong>
+                                {{ quiz.total_marks }}
+                            </p>
+
+                            {% if quiz.duration_minutes %}
+                                <p class="card-text mb-1">
+                                    <strong>Duration:</strong>
+                                    {{ quiz.duration_minutes }} minutes
                                 </p>
                             {% endif %}
 
+                            {% if quiz.due_date %}
+                                <p class="card-text text-danger mb-1">
+                                    <strong>Due:</strong> {{ quiz.due_date|date:"M d, Y" }}
+                                </p>
+                            {% endif %}
+
+                            <p class="mb-0 mt-2">
+                                {% if quiz.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                                {% if quiz.max_attempts %}
+                                    <span class="badge bg-info ms-1">
+                                        Max attempts: {{ quiz.max_attempts }}
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-light text-muted ms-1">
+                                        Unlimited attempts
+                                    </span>
+                                {% endif %}
+                            </p>
+
                         </div>
 
-                        <div class="card-footer bg-transparent border-0 text-end">
+                        <div class="card-footer bg-transparent border-0 d-flex justify-content-end">
                             <a href="{% url 'progress:quiz_detail' quiz.id %}"
-                               class="btn btn-primary btn-sm">
-                                <i class="fas fa-arrow-right"></i> Start Quiz
+                               class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye me-1"></i> View Details
                             </a>
                         </div>
                     </div>

@@ -22,11 +22,23 @@ class LessonForm(forms.ModelForm):
 class HomeworkForm(forms.ModelForm):
     class Meta:
         model = Homework
-        fields = ['title', 'description', 'due_date']
+        fields = [
+            'title',
+            'description',
+            'due_date',
+            'start_time',
+            'end_time',
+            'max_attempts',
+            'attachment',
+        ]
         labels = {
-            'title': 'Homework title',
+            'title': 'Title',
             'description': 'Description',
             'due_date': 'Due date',
+            'start_time': 'Start time',
+            'end_time': 'End time',
+            'max_attempts': 'Max attempts (0 = unlimited)',
+            'attachment': 'Attachment (optional)',
         }
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
@@ -38,8 +50,17 @@ class HomeworkForm(forms.ModelForm):
                 'class': 'form-control',
                 'type': 'date',
             }),
+            'start_time': forms.DateTimeInput(attrs={
+                'class': 'form-control',
+                'type': 'datetime-local',
+            }),
+            'end_time': forms.DateTimeInput(attrs={
+                'class': 'form-control',
+                'type': 'datetime-local',
+            }),
+            'max_attempts': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
+            'attachment': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
-
 
 class QuizForm(forms.ModelForm):
     class Meta:

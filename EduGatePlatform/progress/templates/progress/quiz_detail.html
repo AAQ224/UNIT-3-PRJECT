@@ -16,7 +16,6 @@
 
     <div class="card shadow-sm mb-4">
         <div class="card-body">
-
             <h5 class="text-primary fw-bold mb-3">
                 <i class="fas fa-info-circle me-2"></i> Quiz Information
             </h5>
@@ -33,13 +32,13 @@
             <div class="row">
                 {% if quiz.start_time %}
                 <div class="col-md-6 mb-2">
-                    <strong>Starts at:</strong> {{ quiz.start_time }}
+                    <strong>Starts at:</strong> {{ quiz.start_time|date:"M d, Y H:i" }}
                 </div>
                 {% endif %}
 
                 {% if quiz.end_time %}
                 <div class="col-md-6 mb-2">
-                    <strong>Ends at:</strong> {{ quiz.end_time }}
+                    <strong>Ends at:</strong> {{ quiz.end_time|date:"M d, Y H:i" }}
                 </div>
                 {% endif %}
 
@@ -48,20 +47,31 @@
                     <strong>Duration:</strong> {{ quiz.duration_minutes }} minutes
                 </div>
                 {% endif %}
-            </div>
 
+                {% if quiz.max_attempts %}
+                <div class="col-md-6 mb-2">
+                    <strong>Max attempts:</strong> {{ quiz.max_attempts }}
+                </div>
+                {% endif %}
+            </div>
         </div>
     </div>
 
-    {% if existing_attempts %}
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-info text-white">
-                <strong><i class="fas fa-history me-2"></i> Your Previous Attempts</strong>
-            </div>
+    {% if attempts %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <span class="fw-bold">
+                <i class="fas fa-history me-2"></i> Your Previous Attempts
+            </span>
+            <span class="badge bg-primary">
+                {{ attempts|length }} attempts
+            </span>
+        </div>
 
-            <div class="card-body p-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
                 <table class="table table-hover mb-0 align-middle">
-                    <thead>
+                    <thead class="table-light">
                         <tr>
                             <th>#</th>
                             <th>Score</th>
@@ -70,15 +80,28 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for att in existing_attempts %}
+                        {% for att in attempts %}
                         <tr>
                             <td>{{ forloop.counter }}</td>
                             <td>
-                                <span class="badge bg-success">{{ att.score }}%</span>
+                                {% widthratio att.score 100 quiz.total_marks as earned_score %}
+                                <span class="badge bg-success fs-6">
+                                    {{ earned_score }} / {{ quiz.total_marks }}
+                                </span>
+                                <small class="text-muted ms-2">
+                                    ({{ att.score|floatformat:1 }}%)
+                                </small>
                             </td>
-                            <td>{{ att.created_at }}</td>
+                            <td>
+                                {% if att.finished_at %}
+                                    {{ att.finished_at|date:"M d, Y H:i" }}
+                                {% else %}
+                                    {{ att.started_at|date:"M d, Y H:i" }}
+                                {% endif %}
+                            </td>
                             <td class="text-end">
-                                <a href="{% url 'progress:attempt_result' att.id %}" class="btn btn-sm btn-outline-primary">
+                                <a href="{% url 'progress:attempt_result' att.id %}"
+                                   class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-eye me-1"></i> View
                                 </a>
                             </td>
@@ -87,16 +110,22 @@
                     </tbody>
                 </table>
             </div>
-
         </div>
+    </div>
     {% endif %}
 
-    <div class="text-center mb-5">
-        <a href="{% url 'progress:start_quiz' quiz.id %}"
-           class="btn btn-primary btn-lg px-5">
-            <i class="fas fa-play me-2"></i> Start Quiz
-        </a>
-    </div>
+    {% if can_start %}
+        <div class="text-center mb-5">
+            <a href="{% url 'progress:start_quiz' quiz.id %}"
+               class="btn btn-primary btn-lg px-5">
+                <i class="fas fa-play me-2"></i> Start Quiz
+            </a>
+        </div>
+    {% else %}
+        <div class="alert alert-warning text-center mb-5">
+            This quiz is no longer available for you.
+        </div>
+    {% endif %}
 
 </div>
 

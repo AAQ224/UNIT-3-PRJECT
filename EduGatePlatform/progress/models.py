@@ -26,6 +26,19 @@ class Homework(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
     due_date = models.DateField()
+
+    start_time = models.DateTimeField(null=True, blank=True)
+    end_time = models.DateTimeField(null=True, blank=True)
+    max_attempts = models.PositiveIntegerField(
+        default=0,
+        help_text="0 = unlimited attempts"
+    )
+    attachment = models.FileField(
+        upload_to='homework_attachments/',
+        null=True,
+        blank=True
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -178,6 +191,10 @@ class Answer(models.Model):
         blank=True
     )
     text_answer = models.TextField(blank=True)
+    
+    is_correct = models.BooleanField(default=False)
+    awarded_points = models.IntegerField(default=0)
+
 
     def __str__(self):
         return f"Answer: attempt {self.attempt.pk} - Q{self.question.pk}"

@@ -2,31 +2,55 @@
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-6">
-        <div class="card shadow-lg mt-5 border-danger">
+
+        <div class="card shadow-lg mt-5">
+
             <div class="card-header bg-danger text-white">
-                <h4 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i> Confirm Deletion</h4>
+                <h4 class="mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Confirm Subject Deletion
+                </h4>
             </div>
+
             <div class="card-body p-4">
-                <p class="lead">Are you absolutely sure you want to delete the subject:</p>
-                <h3 class="text-danger fw-bold text-center mb-4">{{ subject.name }} ({{ subject.code|default:"No Code" }})?</h3>
-                
-                <div class="alert alert-warning text-center">
-                    This action **cannot be undone**. All related assignments and lessons will be affected.
+
+                <p class="lead text-center mb-2">
+                    Are you sure you want to delete the subject:
+                </p>
+
+                <h3 class="text-danger fw-bold text-center">
+                    {{ subject.name }}
+                </h3>
+
+                {% if subject.code %}
+                    <p class="text-center text-muted mb-4">
+                        Code: <strong>{{ subject.code }}</strong>
+                    </p>
+                {% endif %}
+
+                <div class="alert alert-warning text-center shadow-sm">
+                    <strong>Warning:</strong>  
+                    This action <u>cannot be undone</u> and may affect related classes, lessons, or assignments.
                 </div>
-                
+
                 <form method="post">
                     {% csrf_token %}
-                    
+
                     <button type="submit" class="btn btn-danger btn-lg w-100 mt-3">
-                        <i class="fas fa-trash me-2"></i> Yes, Delete Permanently
+                        <i class="fas fa-trash me-2"></i>
+                        Yes, Delete Permanently
                     </button>
-                    
+
                     <a href="{% url 'courses:subject_list' %}" class="btn btn-secondary w-100 mt-2">
-                        <i class="fas fa-times me-2"></i> Cancel
+                        <i class="fas fa-times me-2"></i>
+                        Cancel
                     </a>
                 </form>
+
             </div>
+
         </div>
+
     </div>
 </div>
 {% endblock %}
