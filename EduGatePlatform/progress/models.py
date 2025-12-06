@@ -2,10 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from courses.models import SchoolClass, Subject, ClassSubject
 
-
-# =========================
-# الدروس (Lessons)
-# =========================
 class Lesson(models.Model):
     class_subject = models.ForeignKey(
         ClassSubject,
@@ -21,9 +17,6 @@ class Lesson(models.Model):
         return f"Lesson: {self.title} - {self.class_subject}"
 
 
-# =========================
-# الواجبات (Homework)
-# =========================
 class Homework(models.Model):
     class_subject = models.ForeignKey(
         ClassSubject,
@@ -39,10 +32,6 @@ class Homework(models.Model):
     def __str__(self):
         return f"HW: {self.title} ({self.class_subject})"
 
-
-# =========================
-# الكويز الأساسي (Quiz)
-# =========================
 class Quiz(models.Model):
     class_subject = models.ForeignKey(
         ClassSubject,
@@ -53,7 +42,6 @@ class Quiz(models.Model):
     total_marks = models.PositiveIntegerField(default=10)
     due_date = models.DateField(null=True, blank=True)
 
-    # حقول إضافية لنظام الكويز
     description = models.TextField(blank=True)
     start_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True, blank=True)
@@ -62,6 +50,13 @@ class Quiz(models.Model):
         blank=True,
         help_text="مدة الكويز بالدقائق (اختياري)"
     )
+    max_attempts = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        default=0,
+        help_text="0 أو فارغ تعني عدد محاولات غير محدود"
+    )
+    
     is_active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -71,9 +66,7 @@ class Quiz(models.Model):
         return f"Quiz: {self.title} ({self.class_subject})"
 
 
-# =========================
-# تسليمات الواجب (HomeworkSubmission)
-# =========================
+
 class HomeworkSubmission(models.Model):
     homework = models.ForeignKey(
         Homework,
@@ -89,10 +82,7 @@ class HomeworkSubmission(models.Model):
         return f"{self.student.username} submission for {self.homework.title}"
 
 
-# =========================
-# تسليمات الكويز النصية (QuizSubmission)
-# (نخليها زي ما هي لو تحتاجها)
-# =========================
+
 class QuizSubmission(models.Model):
     quiz = models.ForeignKey(
         Quiz,
@@ -108,9 +98,7 @@ class QuizSubmission(models.Model):
         return f"{self.student.username} submission for {self.quiz.title}"
 
 
-# =========================
-# أسئلة الكويز (Question)
-# =========================
+
 class Question(models.Model):
     SINGLE = 'single'
     MULTI = 'multi'
@@ -140,9 +128,6 @@ class Question(models.Model):
         return f"Q{self.pk} - {self.quiz.title}"
 
 
-# =========================
-# خيارات السؤال (Choice)
-# =========================
 class Choice(models.Model):
     question = models.ForeignKey(
         Question,
@@ -156,9 +141,7 @@ class Choice(models.Model):
         return f"Choice: {self.text[:30]}"
 
 
-# =========================
-# محاولات الطلاب (QuizAttempt)
-# =========================
+
 class QuizAttempt(models.Model):
     quiz = models.ForeignKey(
         Quiz,
@@ -179,9 +162,7 @@ class QuizAttempt(models.Model):
         return f"{self.student.username} - {self.quiz.title} - Attempt {self.pk}"
 
 
-# =========================
-# إجابات الأسئلة داخل المحاولة (Answer)
-# =========================
+
 class Answer(models.Model):
     attempt = models.ForeignKey(
         QuizAttempt,
@@ -192,12 +173,10 @@ class Answer(models.Model):
         Question,
         on_delete=models.CASCADE
     )
-    # للأسئلة الاختيارية
     selected_choices = models.ManyToManyField(
         Choice,
         blank=True
     )
-    # للأسئلة النصية
     text_answer = models.TextField(blank=True)
 
     def __str__(self):

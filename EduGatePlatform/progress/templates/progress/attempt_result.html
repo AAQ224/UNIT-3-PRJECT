@@ -5,23 +5,29 @@
 
   <!-- Header + Score -->
   <div class="d-flex justify-content-between align-items-center mb-4">
+    
     <div>
-      <h2 class="fw-bold mb-1">
+      <h1 class="fw-bold mb-1">
         Result of Quiz: {{ attempt.quiz.title }}
-      </h2>
+      </h1>
+
       <p class="text-muted mb-0">
-        Your attempt has been submitted successfully. <i class="fas fa-check-circle text-success"></i>
+        Your attempt has been submitted successfully.
+        <i class="fas fa-check-circle text-success"></i>
       </p>
     </div>
 
-    <!-- SCORE BOX (real score, not percentage) -->
+    <!-- SCORE BOX -->
     <div class="text-end">
       <div class="px-3 py-2 bg-success text-white rounded-3 shadow-sm d-inline-block">
+
         <div class="small text-white-50">Your Score</div>
-{% widthratio attempt.score 100 attempt.quiz.total_marks as earned_score %}
-<div class="fs-4 fw-bold">
-  {{ earned_score }} / {{ attempt.quiz.total_marks }}
-</div>
+
+        {% widthratio attempt.score 100 attempt.quiz.total_marks as earned_score %}
+        <div class="fs-4 fw-bold">
+          {{ earned_score }} / {{ attempt.quiz.total_marks }}
+        </div>
+
       </div>
     </div>
   </div>
@@ -32,6 +38,7 @@
     <div class="col-lg-4">
       <div class="card shadow-sm h-100">
         <div class="card-body">
+
           <h5 class="card-title mb-3">
             <i class="fas fa-info-circle me-2 text-primary"></i> Attempt Summary
           </h5>
@@ -46,16 +53,17 @@
           <p class="mb-2">
             <span class="fw-semibold">Started at:</span>
             <span class="text-muted">
-              {{ attempt.started_at }}
+              {{ attempt.started_at|date:"M d, Y H:i" }}
             </span>
           </p>
 
           <p class="mb-0">
             <span class="fw-semibold">Finished at:</span>
             <span class="text-muted">
-              {{ attempt.finished_at }}
+              {{ attempt.finished_at|date:"M d, Y H:i" }}
             </span>
           </p>
+
         </div>
       </div>
     </div>
@@ -64,15 +72,19 @@
     <div class="col-lg-8">
       <div class="card shadow-sm">
         <div class="card-body">
+
           <h5 class="card-title mb-3">
             <i class="fas fa-list-ul me-2 text-success"></i> Answers Details
           </h5>
 
           {% if attempt.answers.all %}
             <ul class="list-group">
+              
               {% for ans in attempt.answers.all %}
                 <li class="list-group-item">
                   <div class="d-flex justify-content-between">
+
+                    <!-- Question + Answers -->
                     <div>
                       <div class="fw-semibold">
                         {{ forloop.counter }}. {{ ans.question.text }}
@@ -86,6 +98,7 @@
                             {{ ans.get_display_answer }}
                           </span>
                           <span class="badge bg-success ms-1">Correct</span>
+
                         {% else %}
                           <span class="text-danger fw-semibold">
                             {{ ans.get_display_answer }}
@@ -100,22 +113,30 @@
                               </span>
                             </div>
                           {% endif %}
+
                         {% endif %}
                       </div>
                     </div>
 
+                    <!-- Points -->
                     <div class="text-end">
                       <span class="badge bg-light text-dark">
                         {{ ans.awarded_points }} / {{ ans.question.points }} pts
                       </span>
                     </div>
+
                   </div>
                 </li>
               {% endfor %}
+
             </ul>
+
           {% else %}
-            <p class="text-muted mb-0">There are no answer details for this quiz.</p>
+            <p class="text-muted mb-0">
+              There are no answer details for this quiz.
+            </p>
           {% endif %}
+
         </div>
       </div>
     </div>

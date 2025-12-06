@@ -1,16 +1,89 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>
-  {% if mode == "create" %}Create Question{% else %}Edit Question{% endif %}
-  for: {{ quiz.title }}
-</h2>
 
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit" class="btn btn-primary">
-    {% if mode == "create" %}Create{% else %}Save{% endif %}
-  </button>
-  <a href="{% url 'progress:quiz_questions_manage' quiz.id %}" class="btn btn-secondary">Cancel</a>
-</form>
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="mb-0">
+                <i class="fas fa-question-circle me-2"></i>
+                {% if mode == "create" %}Create Question{% else %}Edit Question{% endif %}
+            </h1>
+            <small class="text-muted">
+                Quiz: {{ quiz.title }}
+            </small>
+        </div>
+
+        <a href="{% url 'progress:quiz_questions_manage' quiz.id %}"
+           class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Questions
+        </a>
+    </div>
+
+    <hr>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        {% if mode == "create" %}
+                            <i class="fas fa-plus me-2"></i> New Question
+                        {% else %}
+                            <i class="fas fa-edit me-2"></i> Edit Question
+                        {% endif %}
+                    </h4>
+                </div>
+
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+
+                        <div class="mb-3">
+                            {{ form.text.label_tag }}
+                            {{ form.text }}
+                            {{ form.text.errors }}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                {{ form.qtype.label_tag }}
+                                {{ form.qtype }}
+                                {{ form.qtype.errors }}
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                {{ form.points.label_tag }}
+                                {{ form.points }}
+                                {{ form.points.errors }}
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                {{ form.order.label_tag }}
+                                {{ form.order }}
+                                {{ form.order.errors }}
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mt-2">
+                            {% if mode == "create" %}
+                                <i class="fas fa-save me-1"></i> Create Question
+                            {% else %}
+                                <i class="fas fa-save me-1"></i> Save Changes
+                            {% endif %}
+                        </button>
+
+                        <a href="{% url 'progress:quiz_questions_manage' quiz.id %}"
+                           class="btn btn-secondary w-100 mt-2">
+                            <i class="fas fa-times me-1"></i> Cancel
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
 {% endblock %}

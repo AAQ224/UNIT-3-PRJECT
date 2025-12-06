@@ -3,7 +3,6 @@
 
 <div class="container mt-4">
 
-  <!-- العنوان -->
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0">
       <i class="fas fa-book-open me-2"></i> Your Subjects
@@ -16,45 +15,53 @@
   <hr>
 
   {% if classsubjects %}
-    <div class="row g-4">
+    <div class="row g-4 justify-content-center">
       {% for cs in classsubjects %}
-        <div class="col-md-4">
-          <a href="{% url 'progress:student_subject_detail' cs.id %}" class="text-decoration-none text-dark">
-            <div class="card h-100 shadow-sm card-link-item">
-              <div class="card-body d-flex flex-column">
-                <h4 class="card-title fw-bold mb-2">
-                  <i class="fas fa-book me-2 text-primary"></i> {{ cs.subject.name }}
-                </h4>
+        <div class="col-md-6 col-lg-4">
+          <div class="card h-100 shadow-sm card-link-item">
+            <div class="card-body d-flex flex-column">
+              <h4 class="card-title fw-bold mb-2">
+                <i class="fas fa-book me-2 text-primary"></i> {{ cs.subject.name }}
+              </h4>
 
-                <p class="mb-1">
-                  <span class="fw-semibold">Class:</span>
-                  <span class="badge bg-secondary ms-1">
-                    {{ cs.school_class.name }}
-                  </span>
+              <p class="mb-1">
+                <span class="fw-semibold">Class:</span>
+                <span class="badge bg-secondary ms-1">
+                  {{ cs.school_class.name }}
+                </span>
+              </p>
+
+              <p class="mb-1">
+                <span class="fw-semibold">Teacher:</span>
+                <span class="text-muted">
+                  {{ cs.teacher.username }}
+                </span>
+              </p>
+
+              {% if cs.academic_year %}
+                <p class="mb-2">
+                  <span class="fw-semibold">Academic Year:</span>
+                  <span class="text-muted">{{ cs.academic_year }}</span>
                 </p>
+              {% endif %}
 
-                <p class="mb-1">
-                  <span class="fw-semibold">Teacher:</span>
-                  <span class="text-muted">
-                    {{ cs.teacher.username }}
-                  </span>
-                </p>
+              <p class="mb-1 small text-muted">
+                <i class="fas fa-tasks me-1"></i>
+                Homeworks: {{ cs.homeworks.count|default:"0" }}
+              </p>
+              <p class="mb-3 small text-muted">
+                <i class="fas fa-question-circle me-1"></i>
+                Quizzes: {{ cs.quizzes.count|default:"0" }}
+              </p>
 
-                {% if cs.academic_year %}
-                  <p class="mb-3">
-                    <span class="fw-semibold">Academic Year:</span>
-                    <span class="text-muted">{{ cs.academic_year }}</span>
-                  </p>
-                {% endif %}
-
-                <div class="mt-auto pt-2 text-end">
-                  <span class="text-primary fw-semibold">
-                    View subject <i class="fas fa-arrow-right ms-1"></i>
-                  </span>
-                </div>
+              <div class="mt-auto pt-2">
+                <a href="{% url 'progress:student_subject_detail' cs.id %}"
+                   class="btn btn-primary w-100">
+                  View subject <i class="fas fa-arrow-right ms-1"></i>
+                </a>
               </div>
             </div>
-          </a>
+          </div>
         </div>
       {% endfor %}
     </div>

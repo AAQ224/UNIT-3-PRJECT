@@ -1,44 +1,118 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow-lg mt-3">
-            <div class="card-header bg-danger text-white">
-                {% if mode == "create" %}
-                <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i> Add Quiz - {{ classsubject.school_class.name }} / {{ classsubject.subject.name }}</h4>
-                {% else %}
-                <h4 class="mb-0"><i class="fas fa-edit me-2"></i> Update Quiz - {{ classsubject.school_class.name }} / {{ classsubject.subject.name }}</h4>
-                {% endif %}
-            </div>
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
-                    
-                    <div class="mb-3">
-                        {{ form.title.label_tag }}
-                        {{ form.title }}
-                    </div>
-                    
-                    <div class="mb-3">
-                        {{ form.total_marks.label_tag }}
-                        {{ form.total_marks }}
-                    </div>
-                    
-                    <div class="mb-3">
-                        {{ form.due_date.label_tag }}
-                        {{ form.due_date }}
-                    </div>
-                    
-                    <button type="submit" class="btn btn-danger w-100 mt-3">
-                        <i class="fas fa-save me-2"></i> Save Quiz
-                    </button>
-                    <a href="{% url 'progress:teacher_class_subject' classsubject.id %}" class="btn btn-secondary w-100 mt-2">
-                        <i class="fas fa-arrow-left me-2"></i> Cancel
-                    </a>
-                </form>
+
+<div class="container mt-4">
+
+    <!-- Page header -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-0">
+            <i class="fas fa-clipboard-list me-2"></i>
+            {% if mode == "create" %}
+                Add Quiz
+            {% else %}
+                Update Quiz
+            {% endif %}
+        </h1>
+        <a href="{% url 'progress:teacher_class_subject' classsubject.id %}"
+           class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Manage
+        </a>
+    </div>
+
+    <hr>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        {% if mode == "create" %}
+                            <i class="fas fa-plus-circle me-2"></i>
+                            {{ classsubject.school_class.name }} / {{ classsubject.subject.name }}
+                        {% else %}
+                            <i class="fas fa-edit me-2"></i>
+                            {{ classsubject.school_class.name }} / {{ classsubject.subject.name }}
+                        {% endif %}
+                    </h4>
+                </div>
+
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                {{ form.title.label_tag }}
+                                {{ form.title }}
+                                {{ form.title.errors }}
+                            </div>
+
+                            <div class="col-12 mb-3">
+                                {{ form.description.label_tag }}
+                                {{ form.description }}
+                                {{ form.description.errors }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                {{ form.total_marks.label_tag }}
+                                {{ form.total_marks }}
+                                {{ form.total_marks.errors }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                {{ form.max_attempts.label_tag }}
+                                {{ form.max_attempts }}
+                                <small class="form-text text-muted d-block">
+                                    0 or empty means unlimited attempts.
+                                </small>
+                                {{ form.max_attempts.errors }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                {{ form.due_date.label_tag }}
+                                {{ form.due_date }}
+                                {{ form.due_date.errors }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                {{ form.duration_minutes.label_tag }}
+                                {{ form.duration_minutes }}
+                                {{ form.duration_minutes.errors }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                {{ form.start_time.label_tag }}
+                                {{ form.start_time }}
+                                {{ form.start_time.errors }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                {{ form.end_time.label_tag }}
+                                {{ form.end_time }}
+                                {{ form.end_time.errors }}
+                            </div>
+
+                            <div class="col-12 mb-2">
+                                <div class="form-check">
+                                    {{ form.is_active }}
+                                    {{ form.is_active.label_tag }}
+                                    {{ form.is_active.errors }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-danger w-100 mt-2">
+                            <i class="fas fa-save me-2"></i>
+                            {% if mode == "create" %}Save Quiz{% else %}Update Quiz{% endif %}
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
+
 </div>
+
 {% endblock %}

@@ -85,32 +85,50 @@
                     <i class="fas fa-plus-circle me-1"></i> Add New Quiz
                 </a>
                 <ul class="list-group shadow-sm">
-                {% for quiz in quizzes %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <span class="fw-bold text-danger">
-                                <i class="fas fa-file-alt me-2"></i> {{ quiz.title }}
-                            </span>
-                            <small class="text-muted ms-3">Max Marks: {{ quiz.total_marks }}</small>
-                        </div>
-                        <div>
-                            <a href="{% url 'progress:quiz_questions_manage' quiz.id %}" class="btn btn-sm btn-primary me-2">
-                                <i class="fas fa-tasks"></i> Manage Questions
-                            </a>
-                            <a href="{% url 'progress:quiz_submissions' quiz.id %}" class="btn btn-sm btn-success me-2">
-                                <i class="fas fa-users"></i> Submissions
-                            </a>
-                            <a href="{% url 'progress:quiz_update' quiz.id %}" class="btn btn-sm btn-outline-danger me-2">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
-                            <a href="{% url 'progress:quiz_delete' quiz.id %}" class="btn btn-sm btn-outline-dark">
-                                <i class="fas fa-trash"></i> Delete
-                            </a>
-                        </div>
-                    </li>
-                {% empty %}
-                    <div class="alert alert-light text-center">No quizzes added yet.</div>
-                {% endfor %}
+{% for quiz in quizzes %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+            <span class="fw-bold text-danger">
+                <i class="fas fa-file-alt me-2"></i> {{ quiz.title }}
+            </span><br>
+
+            <small class="text-muted">
+                Max Marks: {{ quiz.total_marks }}
+                &nbsp;|&nbsp;
+                Max Attempts:
+                {% if quiz.max_attempts %}
+                    {{ quiz.max_attempts }}
+                {% else %}
+                    Unlimited
+                {% endif %}
+
+                {% if quiz.start_time or quiz.end_time %}
+                    &nbsp;|&nbsp;
+                    Time:
+                    {% if quiz.start_time %}from {{ quiz.start_time }}{% endif %}
+                    {% if quiz.end_time %} to {{ quiz.end_time }}{% endif %}
+                {% endif %}
+            </small>
+        </div>
+
+        <div>
+            <a href="{% url 'progress:quiz_questions_manage' quiz.id %}" class="btn btn-sm btn-primary me-2">
+                <i class="fas fa-tasks"></i> Manage Questions
+            </a>
+            <a href="{% url 'progress:quiz_submissions' quiz.id %}" class="btn btn-sm btn-success me-2">
+                <i class="fas fa-users"></i> Submissions
+            </a>
+            <a href="{% url 'progress:quiz_update' quiz.id %}" class="btn btn-sm btn-outline-danger me-2">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a href="{% url 'progress:quiz_delete' quiz.id %}" class="btn btn-sm btn-outline-dark">
+                <i class="fas fa-trash"></i> Delete
+            </a>
+        </div>
+    </li>
+{% empty %}
+    <div class="alert alert-light text-center">No quizzes added yet.</div>
+{% endfor %}
                 </ul>
             </div>
             

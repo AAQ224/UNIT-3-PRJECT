@@ -1,39 +1,78 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow-lg mt-3">
-            <div class="card-header bg-info text-white">
-                {% if mode == "create" %}
-                <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i> Add Lesson - {{ classsubject.school_class.name }} / {{ classsubject.subject.name }}</h4>
-                {% else %}
-                <h4 class="mb-0"><i class="fas fa-edit me-2"></i> Update Lesson - {{ classsubject.school_class.name }} / {{ classsubject.subject.name }}</h4>
-                {% endif %}
-            </div>
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
-                    
-                    <div class="mb-3">
-                        {{ form.title.label_tag }}
-                        {{ form.title }}
-                    </div>
-                    
-                    <div class="mb-3">
-                        {{ form.content.label_tag }}
-                        {{ form.content }}
-                    </div>
-                    
-                    <button type="submit" class="btn btn-info w-100 mt-3">
-                        <i class="fas fa-save me-2"></i> Save Lesson
-                    </button>
-                    <a href="{% url 'progress:teacher_class_subject' classsubject.id %}" class="btn btn-secondary w-100 mt-2">
-                        <i class="fas fa-arrow-left me-2"></i> Cancel
-                    </a>
-                </form>
+
+<div class="container mt-4">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-0">
+            {% if mode == "create" %}
+                <i class="fas fa-plus-circle me-2"></i> Add Lesson
+            {% else %}
+                <i class="fas fa-edit me-2"></i> Edit Lesson
+            {% endif %}
+        </h1>
+
+        <a href="{% url 'progress:teacher_class_subject' classsubject.id %}"
+           class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back
+        </a>
+    </div>
+
+    <hr>
+
+    <!-- Lesson Card -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">
+                        {% if mode == "create" %}
+                            <i class="fas fa-book-medical me-2"></i>
+                            {{ classsubject.school_class.name }} / {{ classsubject.subject.name }}
+                        {% else %}
+                            <i class="fas fa-edit me-2"></i>
+                            {{ classsubject.school_class.name }} / {{ classsubject.subject.name }}
+                        {% endif %}
+                    </h4>
+                </div>
+
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+
+                        <!-- Title -->
+                        <div class="mb-3">
+                            {{ form.title.label_tag }}
+                            {{ form.title }}
+                            {{ form.title.errors }}
+                        </div>
+
+                        <!-- Content -->
+                        <div class="mb-3">
+                            {{ form.content.label_tag }}
+                            {{ form.content }}
+                            {{ form.content.errors }}
+                        </div>
+
+                        <!-- Buttons -->
+                        <button type="submit" class="btn btn-info w-100 mt-2 text-white">
+                            <i class="fas fa-save me-1"></i>
+                            {% if mode == "create" %} Save Lesson {% else %} Update Lesson {% endif %}
+                        </button>
+
+                        <a href="{% url 'progress:teacher_class_subject' classsubject.id %}"
+                           class="btn btn-secondary w-100 mt-2">
+                            <i class="fas fa-times me-1"></i> Cancel
+                        </a>
+
+                    </form>
+                </div>
             </div>
         </div>
     </div>
+
 </div>
+
 {% endblock %}

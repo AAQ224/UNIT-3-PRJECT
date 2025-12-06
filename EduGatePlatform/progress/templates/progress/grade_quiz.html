@@ -1,38 +1,89 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow-lg mt-3">
-            <div class="card-header bg-danger text-white">
-                <h4 class="mb-0"><i class="fas fa-check-circle me-2"></i> Grade Quiz Submission: {{ submission.quiz.title }}</h4>
-            </div>
-            <div class="card-body">
-                <h5 class="card-title mb-3">
-                    Student: <span class="badge bg-primary">{{ submission.student.profile.full_name }}</span>
-                </h5>
-                <hr>
-                
-                <h6>Student Answer:</h6>
-                <div class="border p-3 bg-light rounded mb-4" style="white-space: pre-wrap; border-left: 5px solid #dc3545 !important;">
-                    {{ submission.answer_text }}
+
+<div class="container mt-4">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-0">
+            <i class="fas fa-check-circle me-2 text-danger"></i>
+            Grade Quiz Submission
+        </h1>
+
+        <a href="{% url 'progress:quiz_submissions' submission.quiz.id %}"
+           class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back
+        </a>
+    </div>
+
+    <hr>
+
+    <!-- Card -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-file-alt me-2"></i>
+                        {{ submission.quiz.title }}
+                    </h4>
                 </div>
-                
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="id_grade" class="form-label fw-bold">Enter Grade (Max: {{ submission.quiz.max_points|default_if_none:"N/A" }}):</label>
-                        <input type="number" name="grade" id="id_grade" value="{{ submission.grade|default_if_none:'' }}" class="form-control form-control-lg" min="0" {% if submission.quiz.max_points %}max="{{ submission.quiz.max_points }}"{% endif %}>
+
+                <div class="card-body">
+
+                    <!-- Student Info -->
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-user me-2 text-primary"></i>
+                        Student:
+                        <span class="badge bg-primary">
+                            {{ submission.student.profile.full_name }}
+                        </span>
+                    </h5>
+
+                    <hr>
+
+                    <!-- Student Answer -->
+                    <h6 class="fw-bold">Student Answer:</h6>
+                    <div class="border p-3 bg-light rounded mb-4"
+                         style="white-space: pre-wrap; border-left: 5px solid #dc3545;">
+                        {{ submission.answer_text }}
                     </div>
-                    
-                    <button type="submit" class="btn btn-danger w-100 mt-3">
-                        <i class="fas fa-save me-2"></i> Save Grade
-                    </button>
-                    <a href="{% url 'progress:quiz_submissions' submission.quiz.id %}" class="btn btn-secondary w-100 mt-2">
-                        <i class="fas fa-arrow-left me-2"></i> Back to Submissions
-                    </a>
-                </form>
+
+                    <!-- Grade Form -->
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                Grade (Max: {{ submission.quiz.total_marks }})
+                            </label>
+                            <input type="number"
+                                   name="grade"
+                                   class="form-control form-control-lg"
+                                   min="0"
+                                   max="{{ submission.quiz.total_marks }}"
+                                   value="{{ submission.grade|default_if_none:'' }}">
+                        </div>
+
+                        <button type="submit" class="btn btn-danger w-100 mt-2">
+                            <i class="fas fa-save me-1"></i> Save Grade
+                        </button>
+
+                        <a href="{% url 'progress:quiz_submissions' submission.quiz.id %}"
+                           class="btn btn-secondary w-100 mt-2">
+                            <i class="fas fa-times me-1"></i> Cancel
+                        </a>
+                    </form>
+
+                </div>
+
             </div>
+
         </div>
     </div>
+
 </div>
+
 {% endblock %}

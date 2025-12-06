@@ -427,19 +427,11 @@ def grade_quiz_submission(request, submission_id):
         "quiz": quiz,
     })
 
-
-# ==============================
-# نظام الكويز الجديد (أسئلة/خيارات/محاولات)
-# ==============================
-
 @login_required
 def start_quiz_attempt(request, quiz_id):
-    """
-    يبدأ محاولة كويز بنظام الأسئلة والاختيارات.
-    """
+
     quiz = get_object_or_404(Quiz, id=quiz_id)
 
-    # تأكد أن الطالب مسجل في الصف
     is_enrolled = StudentClassEnrollment.objects.filter(
         student=request.user,
         school_class=quiz.class_subject.school_class
@@ -451,7 +443,6 @@ def start_quiz_attempt(request, quiz_id):
 
     now = timezone.now()
 
-    # تحقق من وقت البداية والنهاية
     if quiz.start_time and now < quiz.start_time:
         return render(request, "progress/not_available.html", {
             "message": "لم يبدأ الاختبار بعد."
@@ -462,9 +453,19 @@ def start_quiz_attempt(request, quiz_id):
             "message": "انتهى وقت هذا الاختبار."
         })
 
-    # ممكن تمنع أكثر من محاولة:
-    # existing = QuizAttempt.objects.filter(quiz=quiz, student=request.user, is_submitted=True).exists()
-    # لو تبي تمنع، افعل شيء هنا
+    previous_attempts = QuizAttempt.objects.filter(
+        quiz=quiz,
+        student=request.user
+    ).order_by('-id')
+
+    attempts_count = previous_attempts.count()
+
+    if quiz.max_attempts and quiz.max_attempts > 0 and attempts_count >= quiz.max_attempts:
+        last_attempt = previous_attempts.first()
+        return render(request, "progress/not_available.html", {
+            "message": f"لقد وصلت إلى الحد الأقصى لعدد المحاولات المسموح بها لهذا الاختبار ({quiz.max_attempts}).",
+            "last_attempt": last_attempt,
+        })
 
     attempt = QuizAttempt.objects.create(
         quiz=quiz,
@@ -476,13 +477,10 @@ def start_quiz_attempt(request, quiz_id):
 
 @login_required
 def take_quiz_attempt(request, attempt_id):
-    """
-    عرض/حل أسئلة الكويز + حفظ الإجابات + التصحيح الآلي للاختيارات.
-    """
+
     attempt = get_object_or_404(QuizAttempt, id=attempt_id, student=request.user)
     quiz = attempt.quiz
 
-    # حساب الوقت النهائي
     if quiz.duration_minutes:
         deadline = attempt.started_at + timedelta(minutes=quiz.duration_minutes)
     else:
@@ -490,7 +488,6 @@ def take_quiz_attempt(request, attempt_id):
 
     now = timezone.now()
 
-    # لو الوقت انتهى قبل ما يسلّم
     if deadline and now > deadline and not attempt.is_submitted:
         attempt.is_submitted = True
         attempt.finished_at = now
@@ -505,7 +502,6 @@ def take_quiz_attempt(request, attempt_id):
         })
 
     if request.method == "POST":
-        # امسح أي إجابات سابقة وأعد تخزينها
         attempt.answers.all().delete()
 
         for q in quiz.questions.all():
@@ -524,7 +520,6 @@ def take_quiz_attempt(request, attempt_id):
                 ans.text_answer = text_value
                 ans.save()
 
-        # التصحيح
         total_points = 0
         earned = 0
 
@@ -547,7 +542,6 @@ def take_quiz_attempt(request, attempt_id):
                 if selected_ids == correct_ids:
                     earned += q.points
 
-            # TEXT: بدون تصحيح آلي (ممكن تضيف لاحقاً تصحيح يدوي للمعلم)
 
         attempt.score = (earned / total_points * 100) if total_points > 0 else 0
         attempt.is_submitted = True

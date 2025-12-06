@@ -1,71 +1,108 @@
 {% extends "base.html" %}
-
 {% block content %}
+
 <div class="container mt-4">
 
-  <div class="card shadow-sm mb-4">
-      <div class="card-body">
-          <h2 class="mb-1">{{ classsubject.subject.name }}</h2>
-          <p class="text-muted">Teacher: {{ classsubject.teacher.username }}</p>
-      </div>
-  </div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-0">
+            <i class="fas fa-book-open me-2"></i>
+            {{ classsubject.subject.name }}
+        </h1>
 
-  <div class="card shadow-sm mb-4">
-      <div class="card-header bg-primary text-white">
-          <h4 class="mb-0">Lessons</h4>
-      </div>
-      <div class="card-body">
-          <ul class="list-group">
-              {% for lesson in lessons %}
-                  <li class="list-group-item">{{ lesson.title }}</li>
-              {% empty %}
-                  <li class="list-group-item text-muted">No lessons available.</li>
-              {% endfor %}
-          </ul>
-      </div>
-  </div>
+        <a href="{% url 'accounts:student_subjects' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back
+        </a>
+    </div>
 
-  <div class="card shadow-sm mb-4">
-      <div class="card-header bg-warning">
-          <h4 class="mb-0">Homeworks</h4>
-      </div>
-      <div class="card-body">
-          <ul class="list-group">
-              {% for hw in homeworks %}
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <div>
-                        <strong>{{ hw.title }}</strong><br>
-                        <small class="text-muted">Due: {{ hw.due_date }}</small>
-                      </div>
-                      <a href="{% url 'progress:homework_submit' hw.id %}" class="btn btn-sm btn-primary">Submit</a>
-                  </li>
-              {% empty %}
-                  <li class="list-group-item text-muted">No homeworks.</li>
-              {% endfor %}
-          </ul>
-      </div>
-  </div>
+    <hr>
 
-  <div class="card shadow-sm mb-5">
-      <div class="card-header bg-success text-white">
-          <h4 class="mb-0">Quizzes</h4>
-      </div>
-      <div class="card-body">
-          <ul class="list-group">
-              {% for quiz in quizzes %}
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <div>
-                        <strong>{{ quiz.title }}</strong><br>
-                        <small class="text-muted">Marks: {{ quiz.total_marks }}</small>
-                      </div>
-                      <a href="{% url 'progress:quiz_submit' quiz.id %}" class="btn btn-sm btn-success">Answer</a>
-                  </li>
-              {% empty %}
-                  <li class="list-group-item text-muted">No quizzes.</li>
-              {% endfor %}
-          </ul>
-      </div>
-  </div>
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h3 class="fw-bold text-primary">{{ classsubject.subject.name }}</h3>
+            <p class="text-muted mb-0">
+                <i class="fas fa-user-tie me-1"></i>
+                Teacher: {{ classsubject.teacher.get_full_name|default:classsubject.teacher.username }}
+            </p>
+            <p class="text-muted">
+                <i class="fas fa-users me-1"></i>
+                Class: {{ classsubject.school_class.name }}
+            </p>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="fas fa-book me-2"></i> Lessons</h4>
+        </div>
+        <div class="card-body">
+            {% if lessons %}
+                <ul class="list-group">
+                    {% for lesson in lessons %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>{{ lesson.title }}</span>
+                            <span class="badge bg-secondary">Published: {{ lesson.created_at|date:"M d" }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="alert alert-light mb-0">No lessons available.</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-warning">
+            <h4 class="mb-0"><i class="fas fa-pencil-alt me-2"></i> Homework</h4>
+        </div>
+        <div class="card-body">
+            {% if homeworks %}
+                <ul class="list-group">
+                    {% for hw in homeworks %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ hw.title }}</strong><br>
+                                <small class="text-muted">Due: {{ hw.due_date }}</small>
+                            </div>
+                            <a href="{% url 'progress:homework_submit' hw.id %}"
+                               class="btn btn-sm btn-primary">Submit</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="alert alert-light mb-0">No homework assigned.</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-5">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0"><i class="fas fa-question-circle me-2"></i> Quizzes</h4>
+        </div>
+        <div class="card-body">
+            {% if quizzes %}
+                <ul class="list-group">
+                    {% for quiz in quizzes %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ quiz.title }}</strong><br>
+                                <small class="text-muted">
+                                    Marks: {{ quiz.total_marks }}
+                                </small>
+                            </div>
+
+                            <a href="{% url 'progress:quiz_detail' quiz.id %}"
+                               class="btn btn-sm btn-success">
+                                <i class="fas fa-play me-1"></i> Start
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="alert alert-light mb-0">No quizzes available.</div>
+            {% endif %}
+        </div>
+    </div>
 
 </div>
+
 {% endblock %}

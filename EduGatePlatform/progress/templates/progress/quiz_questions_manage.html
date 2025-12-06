@@ -1,56 +1,118 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Manage Questions for: {{ quiz.title }}</h2>
 
-<a href="{% url 'progress:question_create' quiz.id %}" class="btn btn-primary mb-3">
-    + Add Question
-</a>
+<div class="container mt-4">
 
-{% if questions %}
-  {% for q in questions %}
-    <div class="card mb-3 p-3">
-      <h5>
-        {{ forloop.counter }}. {{ q.text }}
-        <small class="text-muted">({{ q.get_qtype_display }}, {{ q.points }} pts)</small>
-      </h5>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-0">
+            <i class="fas fa-tasks me-2"></i>
+            Manage Questions – {{ quiz.title }}
+        </h1>
 
-      <a href="{% url 'progress:question_update' q.id %}" class="btn btn-sm btn-outline-secondary">Edit Question</a>
-      <a href="{% url 'progress:question_delete' q.id %}" class="btn btn-sm btn-outline-danger">Delete Question</a>
-
-      <hr>
-      <h6>Choices:</h6>
-
-      <a href="{% url 'progress:choice_create' q.id %}" class="btn btn-sm btn-success mb-2">
-        + Add Choice
-      </a>
-
-      {% if q.choices.all %}
-        <ul>
-          {% for c in q.choices.all %}
-            <li>
-              {{ c.text }}
-              {% if c.is_correct %}
-                <strong>(Correct)</strong>
-              {% endif %}
-              -
-              <a href="{% url 'progress:choice_update' c.id %}">Edit</a> |
-              <a href="{% url 'progress:choice_delete' c.id %}">Delete</a>
-            </li>
-          {% empty %}
-            <li>No choices yet.</li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p>No choices yet.</p>
-      {% endif %}
+        <a href="{% url 'progress:teacher_class_subject' quiz.class_subject.id %}"
+           class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Subject
+        </a>
     </div>
-  {% endfor %}
-{% else %}
-  <p>No questions added yet.</p>
-{% endif %}
 
-<a href="{% url 'progress:teacher_class_subject' quiz.class_subject.id %}" class="btn btn-secondary mt-3">
-    Back to Subject
-</a>
+    <hr>
+
+    <div class="mb-3">
+        <a href="{% url 'progress:question_create' quiz.id %}"
+           class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> Add Question
+        </a>
+    </div>
+
+    {% if questions %}
+        {% for q in questions %}
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between align-items-start">
+                    <h5 class="fw-bold">
+                        {{ forloop.counter }}. {{ q.text }}
+                        <small class="text-muted d-block fs-6">
+                            Type: {{ q.get_qtype_display }} • {{ q.points }} pts
+                        </small>
+                    </h5>
+
+                    <div class="text-end">
+                        <a href="{% url 'progress:question_update' q.id %}"
+                           class="btn btn-sm btn-outline-secondary me-2">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a href="{% url 'progress:question_delete' q.id %}"
+                           class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-trash"></i> Delete
+                        </a>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0 fw-bold">Choices</h6>
+
+                    <a href="{% url 'progress:choice_create' q.id %}"
+                       class="btn btn-sm btn-success">
+                        <i class="fas fa-plus"></i> Add Choice
+                    </a>
+                </div>
+
+                {% if q.choices.all %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Choice</th>
+                                    <th>Correct?</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for c in q.choices.all %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ c.text }}</td>
+                                    <td>
+                                        {% if c.is_correct %}
+                                            <span class="badge bg-success">Yes</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">No</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="{% url 'progress:choice_update' c.id %}"
+                                           class="btn btn-sm btn-outline-primary me-1">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'progress:choice_delete' c.id %}"
+                                           class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No choices yet.</p>
+                {% endif %}
+
+            </div>
+        </div>
+        {% endfor %}
+
+    {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            No questions added yet.
+        </div>
+    {% endif %}
+
+</div>
 
 {% endblock %}

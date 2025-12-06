@@ -1,44 +1,84 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow-lg mt-3">
-            <div class="card-header bg-warning text-dark">
-                {% if mode == "create" %}
-                <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i> Add Homework - {{ classsubject.school_class.name }} / {{ classsubject.subject.name }}</h4>
-                {% else %}
-                <h4 class="mb-0"><i class="fas fa-edit me-2"></i> Update Homework - {{ classsubject.school_class.name }} / {{ classsubject.subject.name }}</h4>
-                {% endif %}
-            </div>
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
-                    
-                    <div class="mb-3">
-                        {{ form.title.label_tag }}
-                        {{ form.title }}
-                    </div>
-                    
-                    <div class="mb-3">
-                        {{ form.description.label_tag }}
-                        {{ form.description }}
-                    </div>
-                    
-                    <div class="mb-3">
-                        {{ form.due_date.label_tag }}
-                        {{ form.due_date }}
-                    </div>
-                    
-                    <button type="submit" class="btn btn-warning w-100 mt-3">
-                        <i class="fas fa-save me-2"></i> Save Homework
-                    </button>
-                    <a href="{% url 'progress:teacher_class_subject' classsubject.id %}" class="btn btn-secondary w-100 mt-2">
-                        <i class="fas fa-arrow-left me-2"></i> Cancel
-                    </a>
-                </form>
+
+<div class="container mt-4">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-0">
+            {% if mode == "create" %}
+                <i class="fas fa-plus-circle me-2"></i> Add Homework
+            {% else %}
+                <i class="fas fa-edit me-2"></i> Edit Homework
+            {% endif %}
+        </h1>
+
+        <a href="{% url 'progress:teacher_class_subject' classsubject.id %}"
+           class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back
+        </a>
+    </div>
+
+    <hr>
+
+    <!-- Homework Card -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        {% if mode == "create" %}
+                            <i class="fas fa-clipboard-list me-2"></i>
+                            {{ classsubject.school_class.name }} / {{ classsubject.subject.name }}
+                        {% else %}
+                            <i class="fas fa-edit me-2"></i>
+                            {{ classsubject.school_class.name }} / {{ classsubject.subject.name }}
+                        {% endif %}
+                    </h4>
+                </div>
+
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+
+                        <!-- Title -->
+                        <div class="mb-3">
+                            {{ form.title.label_tag }}
+                            {{ form.title }}
+                            {{ form.title.errors }}
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            {{ form.description.label_tag }}
+                            {{ form.description }}
+                            {{ form.description.errors }}
+                        </div>
+
+                        <!-- Due date -->
+                        <div class="mb-3">
+                            {{ form.due_date.label_tag }}
+                            {{ form.due_date }}
+                            {{ form.due_date.errors }}
+                        </div>
+
+                        <!-- Buttons -->
+                        <button type="submit" class="btn btn-warning w-100 mt-2">
+                            <i class="fas fa-save me-1"></i>
+                            {% if mode == "create" %} Save Homework {% else %} Update Homework {% endif %}
+                        </button>
+
+                        <a href="{% url 'progress:teacher_class_subject' classsubject.id %}"
+                           class="btn btn-secondary w-100 mt-2">
+                            <i class="fas fa-times me-1"></i> Cancel
+                        </a>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
+
 </div>
+
 {% endblock %}
