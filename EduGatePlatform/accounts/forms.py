@@ -50,8 +50,14 @@ class ParentChildrenLinkForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         parent_ids = Profile.objects.filter(role='parent').values_list('user_id', flat=True)
         self.fields['parent'].queryset = User.objects.filter(id__in=parent_ids)
 
         student_ids = Profile.objects.filter(role='student').values_list('user_id', flat=True)
-        self.fields['students'].queryset = User.objects.filter(id__in=student_ids)
+        qs = User.objects.filter(id__in=student_ids)
+        self.fields['students'].queryset = qs
+
+        self.fields['students'].label_from_instance = (
+            lambda obj: f"{obj.profile.full_name} (ID: {obj.id})"
+        )
