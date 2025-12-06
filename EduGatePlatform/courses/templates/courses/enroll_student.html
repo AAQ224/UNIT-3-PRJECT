@@ -1,22 +1,67 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="mb-3">Enroll Students in Class</h1>
+<div class="container mt-4">
 
-<form method="post" class="card card-body">
-  {% csrf_token %}
-  <div class="mb-3">
-    {{ form.school_class.label_tag }}
-    {{ form.school_class }}
-  </div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="mb-1">
+                <i class="fas fa-user-plus me-2 text-primary"></i>
+                Enroll Students in Class
+            </h1>
+            <p class="text-muted mb-0">
+                Select a class and choose one or more students to enroll.
+            </p>
+        </div>
 
-  <div class="mb-3">
-    {{ form.students.label_tag }}
-    {{ form.students }}
-  </div>
+        <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back
+        </a>
+    </div>
 
-  <button type="submit" class="btn btn-primary w-100">Enroll Selected Students</button>
-</form>
+    <hr>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-school me-2"></i>
+                        Class & Students Selection
+                    </h5>
+                </div>
+
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            {{ form.school_class.label_tag }}
+                            {{ form.school_class }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.students.label_tag }}
+                            {{ form.students }}
+                            <small class="text-muted d-block mt-1">
+                                You can search and select multiple students.
+                            </small>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mt-2">
+                            <i class="fas fa-user-check me-2"></i>
+                            Enroll Selected Students
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
 {% endblock %}
 
 {% block extra_js %}

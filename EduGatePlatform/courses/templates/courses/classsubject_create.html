@@ -1,26 +1,62 @@
 {% extends "base.html" %}
-
 {% block content %}
-<h1 class="mb-3">Assign Subject to Class</h1>
+<div class="row justify-content-center">
+    <div class="col-md-8">
 
-<form method="post" class="card card-body">
-  {% csrf_token %}
-  <div class="mb-3">
-    {{ form.school_class.label_tag }}
-    {{ form.school_class }}
-  </div>
-  <div class="mb-3">
-    {{ form.subject.label_tag }}
-    {{ form.subject }}
-  </div>
-  <div class="mb-3">
-    {{ form.teacher.label_tag }}
-    {{ form.teacher }}
-  </div>
-  <div class="mb-3">
-    {{ form.academic_year.label_tag }}
-    {{ form.academic_year }}
-  </div>
-  <button type="submit" class="btn btn-primary w-100">Save</button>
-</form>
+        <div class="card shadow-lg mt-4">
+
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-chalkboard-teacher me-2"></i>
+                    Assign Subject to Class
+                </h4>
+            </div>
+
+            <div class="card-body p-4">
+
+                <p class="text-muted mb-3">
+                    Choose a class, a subject, and the teacher responsible for teaching it.
+                </p>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        {{ form.school_class.label_tag }}
+                        {{ form.school_class }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.subject.label_tag }}
+                        {{ form.subject }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.teacher.label_tag }}
+                        {{ form.teacher }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.academic_year.label_tag }}
+                        {{ form.academic_year }}
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100 mt-3">
+                        <i class="fas fa-save me-2"></i>
+                        Save Assignment
+                    </button>
+
+                    <a href="{% url 'courses:classsubject_list' %}"
+                       class="btn btn-secondary w-100 mt-2">
+                        <i class="fas fa-times me-2"></i>
+                        Cancel
+                    </a>
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
 {% endblock %}

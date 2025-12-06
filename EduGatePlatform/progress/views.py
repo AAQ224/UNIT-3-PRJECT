@@ -5,6 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from django.http import HttpResponseForbidden
+from django.db.models import Q
+
 
 from courses.models import ClassSubject, StudentClassEnrollment
 from .models import (
@@ -112,7 +114,7 @@ def homework_create(request, classsubject_id):
         return HttpResponseForbidden("Not allowed")
 
     if request.method == "POST":
-        form = HomeworkForm(request.POST)
+        form = HomeworkForm(request.POST, request.FILES)
         if form.is_valid():
             hw = form.save(commit=False)
             hw.class_subject = classsubject
@@ -136,7 +138,7 @@ def homework_update(request, homework_id):
         return HttpResponseForbidden("Not allowed")
     
     if request.method == "POST":
-        form = HomeworkForm(request.POST, instance=homework)
+        form = HomeworkForm(request.POST, request.FILES, instance=homework)
         if form.is_valid():
             form.save()
             messages.success(request, "Homework updated successfully.")
@@ -151,6 +153,7 @@ def homework_update(request, homework_id):
     })
 
 
+
 @login_required
 def homework_delete(request, homework_id):
     homework = get_object_or_404(Homework, id=homework_id)
@@ -163,6 +166,18 @@ def homework_delete(request, homework_id):
         return redirect("progress:teacher_class_subject", classsubject_id=homework.class_subject.id)
     
     return render(request, "progress/homework_delete.html", {"homework": homework})
+
+@login_required
+def homework_submission_detail(request, submission_id):
+    submission = get_object_or_404(
+        HomeworkSubmission,
+        id=submission_id,
+        student=request.user
+    )
+    return render(request, "progress/homework_submission_detail.html", {
+        "submission": submission,
+    })
+
 
 
 @login_required
@@ -230,7 +245,6 @@ def quiz_delete(request, quiz_id):
 def student_subject_detail(request, classsubject_id):
     classsubject = get_object_or_404(ClassSubject, id=classsubject_id)
 
-    # تأكد إن الطالب مسجل في نفس الكلاس
     is_enrolled = StudentClassEnrollment.objects.filter(
         student=request.user,
         school_class=classsubject.school_class
@@ -240,17 +254,37 @@ def student_subject_detail(request, classsubject_id):
         messages.error(request, "You are not enrolled in this class.")
         return HttpResponseForbidden("Not allowed")
 
-    # الدروس + الواجبات + الكويزات
     lessons = Lesson.objects.filter(class_subject=classsubject)
     homeworks = Homework.objects.filter(class_subject=classsubject)
-    quizzes = Quiz.objects.filter(class_subject=classsubject)
 
-    # ⚠️ هنا أهم شي: نستخدم تيمبلت accounts اللي انت عدلته
+    now = timezone.now()
+
+    base_quizzes = (
+        Quiz.objects.filter(class_subject=classsubject, is_active=True)
+        .filter(
+            Q(start_time__isnull=True) | Q(start_time__lte=now),
+            Q(end_time__isnull=True) | Q(end_time__gt=now),
+        )
+        .order_by('-created_at')
+    )
+
+    visible_quizzes = []
+    for quiz in base_quizzes:
+        attempts_count = QuizAttempt.objects.filter(
+            quiz=quiz,
+            student=request.user
+        ).count()  
+
+        if quiz.max_attempts and quiz.max_attempts > 0 and attempts_count >= quiz.max_attempts:
+            continue
+
+        visible_quizzes.append(quiz)
+
     return render(request, "accounts/student_subject_detail.html", {
-        "class_subject": classsubject,  # نفس الاسم اللي في التيمبلت حقك
+        "class_subject": classsubject,   
         "lessons": lessons,
         "homeworks": homeworks,
-        "quizzes": quizzes,
+        "quizzes": visible_quizzes,      
     })
 
 @login_required
@@ -289,11 +323,7 @@ def homework_submit(request, homework_id):
 
 @login_required
 def quiz_submit(request, quiz_id):
-    """
-    هذا الفيو القديم لكويز نصّي (إجابة نصية واحدة).
-    نخليه كما هو لو تحتاجه لنوع معيّن من الكويزات.
-    النظام الجديد (أسئلة/خيارات) له فيوهات ثانية تحت.
-    """
+
     quiz = get_object_or_404(Quiz, id=quiz_id)
 
     is_enrolled = StudentClassEnrollment.objects.filter(
@@ -477,7 +507,6 @@ def start_quiz_attempt(request, quiz_id):
 
 @login_required
 def take_quiz_attempt(request, attempt_id):
-
     attempt = get_object_or_404(QuizAttempt, id=attempt_id, student=request.user)
     quiz = attempt.quiz
 
@@ -527,10 +556,14 @@ def take_quiz_attempt(request, attempt_id):
             total_points += q.points
             ans = attempt.answers.get(question=q)
 
+            is_correct = False
+            awarded = 0
+
             if q.qtype == Question.SINGLE:
                 selected = ans.selected_choices.first()
                 if selected and selected.is_correct:
-                    earned += q.points
+                    is_correct = True
+                    awarded = q.points
 
             elif q.qtype == Question.MULTI:
                 correct_ids = set(
@@ -540,8 +573,14 @@ def take_quiz_attempt(request, attempt_id):
                     ans.selected_choices.values_list('id', flat=True)
                 )
                 if selected_ids == correct_ids:
-                    earned += q.points
+                    is_correct = True
+                    awarded = q.points
 
+            ans.is_correct = is_correct
+            ans.awarded_points = awarded
+            ans.save(update_fields=["is_correct", "awarded_points"])
+
+            earned += awarded
 
         attempt.score = (earned / total_points * 100) if total_points > 0 else 0
         attempt.is_submitted = True
@@ -555,6 +594,7 @@ def take_quiz_attempt(request, attempt_id):
         "attempt": attempt,
         "deadline": deadline,
     })
+
 
 
 @login_required
@@ -588,9 +628,7 @@ def quiz_attempts(request, quiz_id):
 
 @login_required
 def quiz_attempt_detail(request, attempt_id):
-    """
-    تفاصيل محاولة معينة (للمعلم) مع كل الإجابات.
-    """
+
     attempt = get_object_or_404(QuizAttempt, id=attempt_id)
     quiz = attempt.quiz
 
@@ -605,16 +643,34 @@ def quiz_attempt_detail(request, attempt_id):
 
 @login_required
 def quiz_list(request):
-   
-    quizzes = Quiz.objects.filter(is_active=True).order_by('-created_at')
-    return render(request, "progress/quiz_list.html", {
-        "quizzes": quizzes,
-    })
+    now = timezone.now()
 
+    base_qs = Quiz.objects.filter(
+        is_active=True
+    ).filter(
+        Q(start_time__isnull=True) | Q(start_time__lte=now),
+        Q(end_time__isnull=True) | Q(end_time__gt=now),
+    ).order_by('-created_at')
+
+    visible_quizzes = []
+
+    for quiz in base_qs:
+        attempts_count = QuizAttempt.objects.filter(
+            quiz=quiz,
+            student=request.user
+        ).count()  
+
+        if quiz.max_attempts and quiz.max_attempts > 0 and attempts_count >= quiz.max_attempts:
+            continue
+
+        visible_quizzes.append(quiz)
+
+    return render(request, "progress/quiz_list.html", {
+        "quizzes": visible_quizzes,
+    })
 
 @login_required
 def quiz_detail(request, quiz_id):
-
     quiz = get_object_or_404(Quiz, id=quiz_id)
 
     attempts = QuizAttempt.objects.filter(
@@ -623,11 +679,33 @@ def quiz_detail(request, quiz_id):
         is_submitted=True
     ).order_by('-started_at')
 
+    now = timezone.now()
+    can_start = True
+
+    if quiz.start_time and now < quiz.start_time:
+        can_start = False
+
+    if quiz.end_time and now > quiz.end_time:
+        can_start = False
+
+    is_enrolled = StudentClassEnrollment.objects.filter(
+        student=request.user,
+        school_class=quiz.class_subject.school_class
+    ).exists()
+
+    if not is_enrolled:
+        can_start = False
+
+    if quiz.max_attempts and quiz.max_attempts > 0:
+        attempts_count = attempts.count()
+        if attempts_count >= quiz.max_attempts:
+            can_start = False
+
     return render(request, "progress/quiz_detail.html", {
         "quiz": quiz,
         "attempts": attempts,
+        "can_start": can_start,
     })
-
 
 @login_required
 def start_quiz(request, quiz_id):
@@ -648,12 +726,9 @@ def attempt_result(request, attempt_id):
 
 @login_required
 def quiz_questions_manage(request, quiz_id):
-    """
-    صفحة للمعلم تعرض كل الأسئلة والخيارات لكويز معيّن.
-    """
+
     quiz = get_object_or_404(Quiz, id=quiz_id)
 
-    # تأكد أن اللي داخل هو المعلم صاحب المادة
     if quiz.class_subject.teacher != request.user:
         messages.error(request, "You are not authorized to manage questions for this quiz.")
         return HttpResponseForbidden("Not allowed")

@@ -23,7 +23,7 @@ def classsubject_create(request):
         form = ClassSubjectForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect("accounts:classsubject_list")
+            return redirect("courses:classsubject_list")
     else:
         form = ClassSubjectForm()
 

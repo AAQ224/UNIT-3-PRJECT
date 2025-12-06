@@ -7,7 +7,7 @@ from .forms import UserRegisterForm, LoginForm, ParentChildrenLinkForm, UserEdit
 from .models import Profile, ParentStudentRelation
 from courses.models import ClassSubject, StudentClassEnrollment, SchoolClass
 from django.http import HttpResponseForbidden
-from progress.models import HomeworkSubmission, QuizSubmission,Quiz,Homework
+from progress.models import HomeworkSubmission, QuizSubmission,Quiz,Homework,QuizAttempt
 
 
 # Create your views here.
@@ -157,16 +157,22 @@ def student_grades(request):
     if profile.role != "student":
         return HttpResponseForbidden("Not allowed")
 
-    hw_subs = HomeworkSubmission.objects.filter(student=request.user).select_related(
+    homework_submissions = HomeworkSubmission.objects.filter(
+        student=request.user
+    ).select_related(
         'homework__class_subject__subject'
-    )
-    quiz_subs = QuizSubmission.objects.filter(student=request.user).select_related(
+    ).order_by('-submitted_at')
+
+    quiz_attempts = QuizAttempt.objects.filter(
+        student=request.user,
+        is_submitted=True
+    ).select_related(
         'quiz__class_subject__subject'
-    )
+    ).order_by('-finished_at', '-id') 
 
     return render(request, "accounts/student_grades.html", {
-        "hw_subs": hw_subs,
-        "quiz_subs": quiz_subs,
+        "homework_submissions": homework_submissions,
+        "quiz_attempts": quiz_attempts,
     })
 
 @login_required
