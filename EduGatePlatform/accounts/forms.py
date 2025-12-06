@@ -61,3 +61,43 @@ class ParentChildrenLinkForm(forms.Form):
         self.fields['students'].label_from_instance = (
             lambda obj: f"{obj.profile.full_name} (ID: {obj.id})"
         )
+
+class UserEditForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        self.user_instance = kwargs.pop("user", None)  # اليوزر اللي نعدله
+        super().__init__(*args, **kwargs)
+
+    username = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={"class": "form-control"})
+    )
+    full_name = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+    national_id = forms.CharField(
+        max_length=20,
+        widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+    role = forms.ChoiceField(
+        choices=Profile.ROLE_CHOICES,
+        widget=forms.Select(attrs={"class": "form-select"})
+    )
+    is_active = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={"class": "form-check-input"})
+    )
+
+    def clean_username(self):
+        username = self.cleaned_data["username"]
+        qs = User.objects.filter(username=username)
+
+        if self.user_instance:
+            qs = qs.exclude(pk=self.user_instance.pk)
+
+        if qs.exists():
+            raise forms.ValidationError("This username is already taken. Please choose another one.")
+        return username

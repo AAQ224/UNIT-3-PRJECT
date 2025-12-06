@@ -3,7 +3,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from .forms import UserRegisterForm, LoginForm, ParentChildrenLinkForm
+from .forms import UserRegisterForm, LoginForm, ParentChildrenLinkForm, UserEditForm
 from .models import Profile, ParentStudentRelation
 from courses.models import ClassSubject, StudentClassEnrollment, SchoolClass
 from django.http import HttpResponseForbidden
@@ -26,14 +26,29 @@ def register(request):
             user = form.save(commit=False)
             password = form.cleaned_data['password']
             user.set_password(password)
+
+            role = form.cleaned_data['role']
+
+            if role == 'admin':
+                user.is_staff = True
+                user.is_superuser = True
+
             user.save()
+
+            role = form.cleaned_data['role']
 
             Profile.objects.create(
                 user=user,
                 full_name=form.cleaned_data['full_name'],
                 national_id=form.cleaned_data['national_id'],
-                role=form.cleaned_data['role']  
+                role=role
             )
+
+            if role == "admin":
+                user.is_staff = True
+                user.is_superuser = True
+                user.save()
+
 
             messages.success(request, "Account created successfully.")
             return redirect('accounts:dashboard')
@@ -214,3 +229,125 @@ def link_parent_children(request):
         form = ParentChildrenLinkForm()
 
     return render(request, "accounts/link_parent_children.html", {"form": form})
+
+@login_required
+def manage_parent_links(request):
+    profile = getattr(request.user, "profile", None)
+    is_admin = request.user.is_superuser or (profile and profile.role == "admin")
+    if not is_admin:
+        return HttpResponseForbidden("Only administrators can manage parent links.")
+
+    relations = ParentStudentRelation.objects.select_related(
+        "parent__profile",
+        "student__profile",
+    ).order_by("parent__profile__full_name", "student__profile__full_name")
+
+    context = {
+        "relations": relations,
+    }
+    return render(request, "accounts/manage_parent_links.html", context)
+
+
+@login_required
+def delete_parent_link(request, relation_id):
+    profile = getattr(request.user, "profile", None)
+    is_admin = request.user.is_superuser or (profile and profile.role == "admin")
+    if not is_admin:
+        return HttpResponseForbidden("Only administrators can manage parent links.")
+
+    relation = get_object_or_404(ParentStudentRelation, id=relation_id)
+
+    if request.method == "POST":
+        relation.delete()
+        messages.success(request, "Parent–child link deleted successfully.")
+        return redirect("accounts:manage_parent_links")
+
+    messages.error(request, "Invalid request method.")
+    return redirect("accounts:manage_parent_links")
+
+@login_required
+def manage_users(request):
+    profile = getattr(request.user, "profile", None)
+    is_admin = request.user.is_superuser or (profile and profile.role == "admin")
+    if not is_admin:
+        return HttpResponseForbidden("Only administrators can manage users.")
+
+    profiles = Profile.objects.select_related("user").order_by("full_name")
+
+    admins = [p for p in profiles if p.role == "admin"]
+    teachers = [p for p in profiles if p.role == "teacher"]
+    students = [p for p in profiles if p.role == "student"]
+    parents = [p for p in profiles if p.role == "parent"]
+
+    context = {
+        "admins": admins,
+        "teachers": teachers,
+        "students": students,
+        "parents": parents,
+    }
+    return render(request, "accounts/manage_users.html", context)
+
+
+@login_required
+def delete_user(request, user_id):
+    profile = getattr(request.user, "profile", None)
+    is_admin = request.user.is_superuser or (profile and profile.role == "admin")
+    if not is_admin:
+        return HttpResponseForbidden("Only administrators can delete users.")
+
+    user = get_object_or_404(User, id=user_id)
+
+    if request.method == "POST":
+        if user == request.user:
+            messages.error(request, "You cannot delete your own account.")
+            return redirect("accounts:manage_users")
+
+        user.delete()
+        messages.success(request, "User deleted successfully.")
+        return redirect("accounts:manage_users")
+
+    messages.error(request, "Invalid request method.")
+    return redirect("accounts:manage_users")
+
+@login_required
+def edit_user(request, user_id):
+    profile = getattr(request.user, "profile", None)
+    is_admin = request.user.is_superuser or (profile and profile.role == "admin")
+    if not is_admin:
+        return HttpResponseForbidden("Only administrators can edit users.")
+
+    user = get_object_or_404(User, id=user_id)
+    user_profile = get_object_or_404(Profile, user=user)
+
+    if request.method == "POST":
+        form = UserEditForm(request.POST, user=user)
+        if form.is_valid():
+            user.username = form.cleaned_data["username"]
+            user.email = form.cleaned_data["email"]
+            user.is_active = form.cleaned_data["is_active"]
+            user.save()
+
+            user_profile.full_name = form.cleaned_data["full_name"]
+            user_profile.national_id = form.cleaned_data["national_id"]
+            user_profile.role = form.cleaned_data["role"]
+            user_profile.save()
+
+            messages.success(request, "User updated successfully.")
+            return redirect("accounts:manage_users")
+    else:
+        form = UserEditForm(
+            initial={
+                "username": user.username,
+                "email": user.email,
+                "full_name": user_profile.full_name,
+                "national_id": user_profile.national_id,
+                "role": user_profile.role,
+                "is_active": user.is_active,
+            },
+            user=user,
+        )
+
+    return render(request, "accounts/edit_user.html", {
+        "form": form,
+        "user_obj": user,
+    })

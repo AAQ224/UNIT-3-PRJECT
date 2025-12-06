@@ -136,3 +136,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG") == "True"
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = "xzxzd123@gmail.com"
+EMAIL_HOST_PASSWORD = "kylx mpnr kqej hzve"
+
+DEFAULT_FROM_EMAIL = 'EduGate Platform <xzxzd123@gmail.com>'

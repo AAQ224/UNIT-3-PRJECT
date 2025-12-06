@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-3">
+  <i class="fas fa-user-graduate me-2"></i> Manage Enrollments
+</h1>
+
+<div class="d-flex justify-content-end mb-3">
+  <a href="{% url 'courses:enroll_student' %}" class="btn btn-primary">
+    <i class="fas fa-user-plus me-1"></i> Enroll Students in Class
+  </a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    {% if enrollments %}
+      <div class="table-responsive">
+        <table class="table table-striped mb-0 align-middle">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Class</th>
+              <th>Student Name</th>
+              <th>Student Username</th>
+              <th style="width: 140px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for enr in enrollments %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>{{ enr.school_class.name }}</td>
+              <td>{{ enr.student.profile.full_name }}</td>
+              <td>{{ enr.student.username }}</td>
+              <td>
+                <form method="post"
+                      action="{% url 'courses:delete_enrollment' enr.id %}"
+                      class="d-inline">
+                  {% csrf_token %}
+                  <button type="submit"
+                          class="btn btn-sm btn-outline-danger"
+                          onclick="return confirm('Are you sure you want to remove this enrollment?');">
+                    <i class="fas fa-trash"></i> Delete
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="p-3 mb-0 text-muted">No enrollments found.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

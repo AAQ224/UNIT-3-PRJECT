@@ -55,6 +55,41 @@ def enroll_students_in_class(request):
 
     return render(request, "courses/enroll_student.html", {"form": form})
 
+@login_required
+def manage_enrollments(request):
+    profile = getattr(request.user, "profile", None)
+    is_admin = request.user.is_superuser or (profile and profile.role == "admin")
+    if not is_admin:
+        return HttpResponseForbidden("Only administrators can manage enrollments.")
+
+    enrollments = StudentClassEnrollment.objects.select_related(
+        "student__profile",
+        "school_class",
+    ).order_by("school_class__grade_level", "school_class__name", "student__profile__full_name")
+
+    context = {
+        "enrollments": enrollments,
+    }
+    return render(request, "courses/manage_enrollments.html", context)
+
+
+@login_required
+def delete_enrollment(request, enrollment_id):
+    profile = getattr(request.user, "profile", None)
+    is_admin = request.user.is_superuser or (profile and profile.role == "admin")
+    if not is_admin:
+        return HttpResponseForbidden("Only administrators can manage enrollments.")
+
+    enrollment = get_object_or_404(StudentClassEnrollment, id=enrollment_id)
+
+    if request.method == "POST":
+        enrollment.delete()
+        messages.success(request, "Enrollment deleted successfully.")
+        return redirect("courses:manage_enrollments")
+
+    messages.error(request, "Invalid request method.")
+    return redirect("courses:manage_enrollments")
+
 
 
 @login_required

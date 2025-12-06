@@ -6,7 +6,12 @@ app_name = "courses"
 urlpatterns = [
     
     path("enroll-student/", views.enroll_students_in_class, name="enroll_student"),
-    
+    path("manage-enrollments/", views.manage_enrollments, name="manage_enrollments"),
+    path(
+        "manage-enrollments/<int:enrollment_id>/delete/",
+        views.delete_enrollment,
+        name="delete_enrollment",
+    ),
     path("subjects/", views.subject_list, name="subject_list"),
     path("subjects/create/", views.subject_create, name="subject_create"),
     path("subjects/<int:subject_id>/edit/", views.subject_update, name="subject_update"),

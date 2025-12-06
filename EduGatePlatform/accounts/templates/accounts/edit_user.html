@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-3">
+    <i class="fas fa-user-edit me-2"></i>
+    Edit User – {{ user_obj.username }}
+</h1>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.username.label_tag }}
+          {{ form.username }}
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.email.label_tag }}
+          {{ form.email }}
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.full_name.label_tag }}
+          {{ form.full_name }}
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.national_id.label_tag }}
+          {{ form.national_id }}
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.role.label_tag }}
+          {{ form.role }}
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-3">
+          <div class="form-check">
+            {{ form.is_active }}
+            {{ form.is_active.label_tag }}
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-save me-1"></i> Save changes
+      </button>
+      <a href="{% url 'accounts:manage_users' %}" class="btn btn-secondary ms-2">
+        Cancel
+      </a>
+    </form>
+  </div>
+</div>
+{% endblock %}

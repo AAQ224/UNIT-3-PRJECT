@@ -23,17 +23,17 @@
         <h6 class="mb-3 text-primary"><i class="fas fa-users-cog me-2"></i> User & Relations Management</h6>
         <div class="row">
             <div class="col-md-6 mb-2">
-                <a href="{% url 'accounts:register' %}" class="btn btn-outline-primary w-100">
-                    ➕ Add New User
+                <a href="{% url 'accounts:manage_users' %}" class="btn btn-outline-primary w-100">
+                    👤 Manage Users
                 </a>
             </div>
             <div class="col-md-6 mb-2">
-                <a href="{% url 'accounts:link_parent_children' %}" class="btn btn-outline-info w-100">
-                    🔗 Link Parent to Children
+                <a href="{% url 'accounts:manage_parent_links' %}" class="btn btn-outline-info w-100">
+                    🔗 Manage Parent Links
                 </a>
             </div>
         </div>
-        
+
         <hr class="my-4">
 
         <h6 class="mb-3 text-success"><i class="fas fa-book-reader me-2"></i> Courses & Classes Management</h6>
@@ -54,11 +54,12 @@
                 </a>
             </div>
             <div class="col-md-6 mb-2">
-                <a href="{% url 'courses:enroll_student' %}" class="btn btn-outline-warning w-100">
-                    👥 Enroll Students in Class
+                <a href="{% url 'courses:manage_enrollments' %}" class="btn btn-outline-warning w-100">
+                    👥 Manage Enrollments
                 </a>
             </div>
         </div>
+
 
         <hr class="my-4">
         
