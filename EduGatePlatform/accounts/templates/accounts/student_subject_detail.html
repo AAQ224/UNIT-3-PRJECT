@@ -6,7 +6,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="mb-0">
             <i class="fas fa-book me-2 text-primary"></i>
-            {{ classsubject.subject.name }} ({{ classsubject.school_class.name }})
+            {{ class_subject.subject.name }} ({{ class_subject.school_class.name }})
         </h1>
         <a href="{% url 'accounts:student_subjects' %}" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left me-1"></i> Back to Subjects
@@ -18,12 +18,12 @@
             <div>
                 <p class="mb-1">
                     <span class="fw-semibold">Class:</span>
-                    <span class="badge bg-secondary ms-1">{{ classsubject.school_class.name }}</span>
+                    <span class="badge bg-secondary ms-1">{{ class_subject.school_class.name }}</span>
                 </p>
-                {% if classsubject.academic_year %}
+                {% if class_subject.academic_year %}
                 <p class="mb-0">
                     <span class="fw-semibold">Academic Year:</span>
-                    <span class="text-muted">{{ classsubject.academic_year }}</span>
+                    <span class="text-muted">{{ class_subject.academic_year }}</span>
                 </p>
                 {% endif %}
             </div>
@@ -31,7 +31,9 @@
                 <p class="mb-0">
                     <span class="fw-semibold">Teacher:</span>
                     <span class="text-muted">
-                        {{ classsubject.teacher.username }}
+
+                        {{ class_subject.teacher.get_full_name|default:class_subject.teacher.username }}
+
                     </span>
                 </p>
             </div>
@@ -125,7 +127,6 @@
                                         </span>
                                         <small class="text-muted ms-3">
                                             Due: {{ hw.due_date|date:"M d" }}
-
                                         </small>
                                     </div>
                                     <a href="{% url 'progress:homework_submit' hw.id %}"

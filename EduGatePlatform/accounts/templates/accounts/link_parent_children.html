@@ -1,32 +1,52 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="mb-3">Link Parent to Children</h1>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">
+        <i class="fas fa-user-friends me-2"></i>
+        Link Parent to Children
+    </h1>
+    <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
+    </a>
+</div>
 
-<form method="post" class="card card-body">
-  {% csrf_token %}
+<div class="card shadow-sm">
+  <div class="card-body">
+    <form method="post">
+      {% csrf_token %}
 
-  <div class="mb-3">
-    {{ form.parent.label_tag }}
-    {{ form.parent }}
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          {{ form.parent.label_tag }}
+          {{ form.parent }}
+        </div>
+        <div class="col-md-6 mb-3">
+          {{ form.students.label_tag }}
+          {{ form.students }}
+        </div>
+      </div>
+
+      <div class="d-grid">
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-link me-2"></i>
+            Link Parent
+        </button>
+      </div>
+    </form>
   </div>
-
-  <div class="mb-3">
-    {{ form.students.label_tag }}
-    {{ form.students }}
-  </div>
-
-  <button type="submit" class="btn btn-primary w-100">Link Parent</button>
-</form>
+</div>
 {% endblock %}
 
-{% block extra_js %}
+{% block extra_css %}
 <style>
   #parent_students {
       display: none;
   }
 </style>
+{% endblock %}
 
+{% block extra_js %}
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const selectEl = document.getElementById("parent_students");

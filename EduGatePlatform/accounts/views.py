@@ -194,14 +194,18 @@ def parent_child_grades(request, student_id):
     hw_subs = HomeworkSubmission.objects.filter(student=student).select_related(
         'homework__class_subject__subject'
     )
-    quiz_subs = QuizSubmission.objects.filter(student=student).select_related(
+
+    quiz_attempts = QuizAttempt.objects.filter(
+        student=student,
+        is_submitted=True          
+    ).select_related(
         'quiz__class_subject__subject'
     )
 
     return render(request, "accounts/parent_child_grades.html", {
         "student": student,
         "hw_subs": hw_subs,
-        "quiz_subs": quiz_subs,
+        "quiz_attempts": quiz_attempts,   
     })
 
 @login_required

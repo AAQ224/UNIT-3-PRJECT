@@ -14,6 +14,45 @@
 
     <hr>
 
+    <div class="row mb-4">
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 text-center">
+                <div class="card-body">
+                    <i class="fas fa-clipboard-list fa-2x text-primary mb-2"></i>
+                    <h6 class="text-muted mb-1">Homework Submitted</h6>
+                    <h3 class="fw-bold">{{ homework_submissions|length }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 text-center">
+                <div class="card-body">
+                    <i class="fas fa-question-circle fa-2x text-success mb-2"></i>
+                    <h6 class="text-muted mb-1">Quiz Attempts</h6>
+                    <h3 class="fw-bold">{{ quiz_attempts|length }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 text-center">
+                <div class="card-body">
+                    <i class="fas fa-check-circle fa-2x text-warning mb-2"></i>
+                    <h6 class="text-muted mb-1">Graded Entries</h6>
+                    <h3 class="fw-bold">
+                        {{homework_submissions|dictsort:"grade"|length}}
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <hr>
+
     <div class="card shadow-lg border-0">
         <div class="card-header p-0">
             <ul class="nav nav-tabs" id="gradeTabs" role="tablist">
@@ -47,165 +86,171 @@
         <div class="card-body">
             <div class="tab-content" id="gradeTabsContent">
                 
-<div class="tab-pane fade show active"
-     id="homework"
-     role="tabpanel"
-     aria-labelledby="homework-tab">
+                <div class="tab-pane fade show active"
+                     id="homework"
+                     role="tabpanel"
+                     aria-labelledby="homework-tab">
 
-    <h5 class="mb-3 text-primary">Homework Scores</h5>
+                    <h5 class="mb-3 text-primary">
+                        <i class="fas fa-clipboard-check me-2"></i> Homework Scores
+                    </h5>
 
-    {% if homework_submissions %}
-        {% regroup homework_submissions by homework.class_subject.subject as subject_hw_list %}
+                    {% if homework_submissions %}
+                        {% regroup homework_submissions by homework.class_subject.subject as subject_hw_list %}
 
-        <div class="accordion" id="homeworkSubjectsAccordion">
-            {% for group in subject_hw_list %}
-                <div class="accordion-item border-0 mb-2 shadow-sm">
-                    <h2 class="accordion-header" id="hwHeading{{ forloop.counter }}">
-                        <button class="accordion-button collapsed bg-light text-dark fw-semibold"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#hwSubject{{ forloop.counter }}"
-                                aria-expanded="false"
-                                aria-controls="hwSubject{{ forloop.counter }}">
-                            <span class="me-2">{{ group.grouper.name }}</span>
-                            <span class="badge bg-secondary ms-2">
-                                {{ group.list|length }} submissions
-                            </span>
-                        </button>
-                    </h2>
-                    <div id="hwSubject{{ forloop.counter }}"
-                         class="accordion-collapse collapse"
-                         aria-labelledby="hwHeading{{ forloop.counter }}"
-                         data-bs-parent="#homeworkSubjectsAccordion">
-                        <div class="accordion-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Homework Title</th>
-                                            <th>Date Submitted</th>
-                                            <th>Grade</th>
-                                            <th>Details</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for sub in group.list %}
-                                        <tr>
-                                            <td>{{ forloop.counter }}</td>
-                                            <td>{{ sub.homework.title }}</td>
-                                            <td>{{ sub.submitted_at|date:"M d, Y" }}</td>
-                                            <td>
-                                                {% if sub.grade is not None %}
-                                                    <span class="badge bg-success fs-6">{{ sub.grade }}</span>
-                                                {% else %}
-                                                    <span class="badge bg-warning fs-6">Pending</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <a href="{% url 'progress:homework_submission_detail' sub.id %}"
-                                                   class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-eye me-1"></i> Details
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
+                        <div class="accordion" id="homeworkSubjectsAccordion">
+                            {% for group in subject_hw_list %}
+                                <div class="accordion-item border-0 mb-2 shadow-sm">
+                                    <h2 class="accordion-header" id="hwHeading{{ forloop.counter }}">
+                                        <button class="accordion-button collapsed bg-light text-dark fw-semibold"
+                                                type="button"
+                                                data-bs-toggle="collapse"
+                                                data-bs-target="#hwSubject{{ forloop.counter }}"
+                                                aria-expanded="false"
+                                                aria-controls="hwSubject{{ forloop.counter }}">
+                                            <span class="me-2">{{ group.grouper.name }}</span>
+                                            <span class="badge bg-secondary ms-2">
+                                                {{ group.list|length }} submissions
+                                            </span>
+                                        </button>
+                                    </h2>
+                                    <div id="hwSubject{{ forloop.counter }}"
+                                         class="accordion-collapse collapse"
+                                         aria-labelledby="hwHeading{{ forloop.counter }}"
+                                         data-bs-parent="#homeworkSubjectsAccordion">
+                                        <div class="accordion-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-hover align-middle mb-0">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th>#</th>
+                                                            <th>Homework Title</th>
+                                                            <th>Date Submitted</th>
+                                                            <th>Grade</th>
+                                                            <th>Details</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for sub in group.list %}
+                                                        <tr>
+                                                            <td>{{ forloop.counter }}</td>
+                                                            <td>{{ sub.homework.title }}</td>
+                                                            <td>{{ sub.submitted_at|date:"M d, Y" }}</td>
+                                                            <td>
+                                                                {% if sub.grade is not None %}
+                                                                    <span class="badge bg-success fs-6">{{ sub.grade }}</span>
+                                                                {% else %}
+                                                                    <span class="badge bg-warning text-dark fs-6">Pending</span>
+                                                                {% endif %}
+                                                            </td>
+                                                            <td>
+                                                                <a href="{% url 'progress:homework_submission_detail' sub.id %}"
+                                                                   class="btn btn-sm btn-outline-primary">
+                                                                    <i class="fas fa-eye me-1"></i> Details
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
                         </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <div class="text-center p-4">
-            No homework submissions found.
-        </div>
-    {% endif %}
-
-</div>
-
-<div class="tab-pane fade"
-     id="quiz"
-     role="tabpanel"
-     aria-labelledby="quiz-tab">
-
-    <h5 class="mb-3 text-success">Quiz Scores</h5>
-
-    {% if quiz_attempts %}
-        {% regroup quiz_attempts by quiz.class_subject.subject as subject_quiz_list %}
-
-        <div class="accordion" id="quizSubjectsAccordion">
-            {% for group in subject_quiz_list %}
-                <div class="accordion-item border-0 mb-2 shadow-sm">
-                    <h2 class="accordion-header" id="heading{{ forloop.counter }}">
-                        <button class="accordion-button collapsed bg-light text-dark fw-semibold"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#subject{{ forloop.counter }}"
-                                aria-expanded="false"
-                                aria-controls="subject{{ forloop.counter }}">
-                            <span class="me-2">{{ group.grouper.name }}</span>
-                            <span class="badge bg-secondary ms-2">
-                                {{ group.list|length }} attempts
-                            </span>
-                        </button>
-                    </h2>
-                    <div id="subject{{ forloop.counter }}"
-                         class="accordion-collapse collapse"
-                         aria-labelledby="heading{{ forloop.counter }}"
-                         data-bs-parent="#quizSubjectsAccordion">
-                        <div class="accordion-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Quiz Title</th>
-                                            <th>Attempt Date</th>
-                                            <th>Score</th>
-                                            <th>Details</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for attempt in group.list %}
-                                            <tr>
-                                                <td>{{ forloop.counter }}</td>
-                                                <td>{{ attempt.quiz.title }}</td>
-                                                <td>{{ attempt.finished_at|date:"M d, Y H:i" }}</td>
-                                                <td>
-                                                    {% widthratio attempt.score 100 attempt.quiz.total_marks as earned_score %}
-                                                    <span class="badge bg-success fs-6">
-                                                        {{ earned_score }} / {{ attempt.quiz.total_marks }}
-                                                    </span>
-                                                    <small class="text-muted ms-2">
-                                                        ({{ attempt.score|floatformat:1 }}%)
-                                                    </small>
-                                                </td>
-                                                <td>
-                                                    <a href="{% url 'progress:attempt_result' attempt.id %}"
-                                                       class="btn btn-sm btn-outline-primary">
-                                                        <i class="fas fa-eye me-1"></i> Details
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
+                    {% else %}
+                        <div class="alert alert-light text-center mb-0">
+                            <i class="fas fa-info-circle me-1"></i>
+                            No homework submissions found.
                         </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <div class="text-center p-4">
-            No quiz attempts found.
-        </div>
-    {% endif %}
+                    {% endif %}
 
-</div>
+                </div>
+
+                <div class="tab-pane fade"
+                     id="quiz"
+                     role="tabpanel"
+                     aria-labelledby="quiz-tab">
+
+                    <h5 class="mb-3 text-success">
+                        <i class="fas fa-poll-h me-2"></i> Quiz Scores
+                    </h5>
+
+                    {% if quiz_attempts %}
+                        {% regroup quiz_attempts by quiz.class_subject.subject as subject_quiz_list %}
+
+                        <div class="accordion" id="quizSubjectsAccordion">
+                            {% for group in subject_quiz_list %}
+                                <div class="accordion-item border-0 mb-2 shadow-sm">
+                                    <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                                        <button class="accordion-button collapsed bg-light text-dark fw-semibold"
+                                                type="button"
+                                                data-bs-toggle="collapse"
+                                                data-bs-target="#subject{{ forloop.counter }}"
+                                                aria-expanded="false"
+                                                aria-controls="subject{{ forloop.counter }}">
+                                            <span class="me-2">{{ group.grouper.name }}</span>
+                                            <span class="badge bg-secondary ms-2">
+                                                {{ group.list|length }} attempts
+                                            </span>
+                                        </button>
+                                    </h2>
+                                    <div id="subject{{ forloop.counter }}"
+                                         class="accordion-collapse collapse"
+                                         aria-labelledby="heading{{ forloop.counter }}"
+                                         data-bs-parent="#quizSubjectsAccordion">
+                                        <div class="accordion-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-hover align-middle mb-0">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th>#</th>
+                                                            <th>Quiz Title</th>
+                                                            <th>Attempt Date</th>
+                                                            <th>Score</th>
+                                                            <th>Details</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for attempt in group.list %}
+                                                            <tr>
+                                                                <td>{{ forloop.counter }}</td>
+                                                                <td>{{ attempt.quiz.title }}</td>
+                                                                <td>{{ attempt.finished_at|date:"M d, Y H:i" }}</td>
+                                                                <td>
+                                                                    {% widthratio attempt.score 100 attempt.quiz.total_marks as earned_score %}
+                                                                    <span class="badge bg-success fs-6">
+                                                                        {{ earned_score }} / {{ attempt.quiz.total_marks }}
+                                                                    </span>
+                                                                    <small class="text-muted ms-2">
+                                                                        ({{ attempt.score|floatformat:1 }}%)
+                                                                    </small>
+                                                                </td>
+                                                                <td>
+                                                                    <a href="{% url 'progress:attempt_result' attempt.id %}"
+                                                                       class="btn btn-sm btn-outline-primary">
+                                                                        <i class="fas fa-eye me-1"></i> Details
+                                                                    </a>
+                                                                </td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-light text-center mb-0">
+                            <i class="fas fa-info-circle me-1"></i>
+                            No quiz attempts found.
+                        </div>
+                    {% endif %}
+
+                </div>
 
             </div>
         </div>

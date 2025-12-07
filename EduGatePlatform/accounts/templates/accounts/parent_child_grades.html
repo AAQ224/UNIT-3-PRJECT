@@ -1,49 +1,118 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Grades for {{ student.profile.full_name }}</h1>
+<div class="container mt-4">
 
-<h2>Homeworks</h2>
-{% if hw_subs %}
-  <table>
-    <tr>
-      <th>Subject</th>
-      <th>Homework</th>
-      <th>Grade</th>
-      <th>Due date</th>hh
-    </tr>
-    {% for sub in hw_subs %}
-      <tr>
-        <td>{{ sub.homework.class_subject.subject.name }}</td>
-        <td>{{ sub.homework.title }}</td>
-        <td>{% if sub.grade %}{{ sub.grade }}{% else %}-{% endif %}</td>
-        <td>{{ sub.homework.due_date }}</td>
-      </tr>
-    {% endfor %}
-  </table>
-{% else %}
-  <p>No homework grades yet.</p>
-{% endif %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">
+      <i class="fas fa-chart-line me-2 text-primary"></i>
+      Grades for {{ student.profile.full_name }}
+    </h1>
+    <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-secondary">
+      <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+    </a>
+  </div>
 
-<h2>Quizzes</h2>
-{% if quiz_subs %}
-  <table>
-    <tr>
-      <th>Subject</th>
-      <th>Quiz</th>
-      <th>Grade</th>
-      <th>Due date</th>
-    </tr>
-    {% for sub in quiz_subs %}
-      <tr>
-        <td>{{ sub.quiz.class_subject.subject.name }}</td>
-        <td>{{ sub.quiz.title }}</td>
-        <td>{% if sub.grade %}{{ sub.grade }}{% else %}-{% endif %}</td>
-        <td>{{ sub.quiz.due_date }}</td>
-      </tr>
-    {% endfor %}
-  </table>
-{% else %}
-  <p>No quiz grades yet.</p>
-{% endif %}
+  <hr>
+
+  <div class="row g-4">
+
+    <!-- Homework Grades -->
+    <div class="col-lg-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-light">
+          <strong><i class="fas fa-clipboard-list me-2"></i> Homework Grades</strong>
+        </div>
+        <div class="card-body p-0">
+          {% if hw_subs %}
+            <div class="table-responsive">
+              <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Subject</th>
+                    <th>Homework</th>
+                    <th>Grade</th>
+                    <th>Due Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for sub in hw_subs %}
+                  <tr>
+                    <td>{{ sub.homework.class_subject.subject.name }}</td>
+                    <td>{{ sub.homework.title }}</td>
+                    <td>
+                      {% if sub.grade is not None %}
+                        <span class="badge bg-success">{{ sub.grade }}</span>
+                      {% else %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ sub.homework.due_date|date:"M d, Y" }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="p-3 mb-0 text-muted">No homework grades yet.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Quiz Grades -->
+    <div class="col-lg-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-light">
+          <strong><i class="fas fa-question-circle me-2"></i> Quiz Grades</strong>
+        </div>
+        <div class="card-body p-0">
+          {% if quiz_attempts %}
+            <div class="table-responsive">
+              <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Subject</th>
+                    <th>Quiz</th>
+                    <th>Grade</th>
+                    <th>Due Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for attempt in quiz_attempts %}
+                  <tr>
+                    <td>{{ attempt.quiz.class_subject.subject.name }}</td>
+                    <td>{{ attempt.quiz.title }}</td>
+                    <td>
+                      {% widthratio attempt.score 100 attempt.quiz.total_marks as earned_score %}
+                      <span class="badge bg-success">
+                        {{ earned_score }} / {{ attempt.quiz.total_marks }}
+                      </span>
+                      <small class="text-muted ms-2">
+                        ({{ attempt.score|floatformat:1 }}%)
+                      </small>
+                    </td>
+                    <td>
+                      {% if attempt.quiz.due_date %}
+                        {{ attempt.quiz.due_date|date:"M d, Y" }}
+                      {% else %}
+                        -
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="p-3 mb-0 text-muted">No quiz grades yet.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+
+</div>
 {% endblock %}

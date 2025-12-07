@@ -6,7 +6,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="mb-0">
             <i class="fas fa-book-open me-2"></i>
-            {{ classsubject.subject.name }}
+            {{ class_subject.subject.name }}
         </h1>
 
         <a href="{% url 'accounts:student_subjects' %}" class="btn btn-outline-secondary">
@@ -18,14 +18,15 @@
 
     <div class="card shadow-sm mb-4">
         <div class="card-body">
-            <h3 class="fw-bold text-primary">{{ classsubject.subject.name }}</h3>
+            <h3 class="fw-bold text-primary">{{ class_subject.subject.name }}</h3>
             <p class="text-muted mb-0">
                 <i class="fas fa-user-tie me-1"></i>
-                Teacher: {{ classsubject.teacher.get_full_name|default:classsubject.teacher.username }}
+                Teacher:
+                {{ class_subject.teacher.get_full_name|default:class_subject.teacher.username }}
             </p>
             <p class="text-muted">
                 <i class="fas fa-users me-1"></i>
-                Class: {{ classsubject.school_class.name }}
+                Class: {{ class_subject.school_class.name }}
             </p>
         </div>
     </div>

@@ -118,9 +118,9 @@ class Question(models.Model):
     TEXT = 'text'
 
     QTYPE_CHOICES = [
-        (SINGLE, 'اختيار واحد'),
-        (MULTI, 'اختيارات متعددة'),
-        (TEXT, 'إجابة نصيّة'),
+        (SINGLE, 'Single choice'),
+        (MULTI, 'Multiple choice'),
+        (TEXT, 'Text answer'),
     ]
 
     quiz = models.ForeignKey(
@@ -137,9 +137,11 @@ class Question(models.Model):
     points = models.PositiveIntegerField(default=1)
     order = models.PositiveIntegerField(default=0)
 
+    class Meta:
+        ordering = ['order', 'id']
+
     def __str__(self):
         return f"Q{self.pk} - {self.quiz.title}"
-
 
 class Choice(models.Model):
     question = models.ForeignKey(

@@ -60,17 +60,16 @@ def manage_enrollments(request):
     profile = getattr(request.user, "profile", None)
     is_admin = request.user.is_superuser or (profile and profile.role == "admin")
     if not is_admin:
-        return HttpResponseForbidden("Only administrators can manage enrollments.")
+        return HttpResponseForbidden("Not allowed")
 
     enrollments = StudentClassEnrollment.objects.select_related(
-        "student__profile",
         "school_class",
-    ).order_by("school_class__grade_level", "school_class__name", "student__profile__full_name")
+        "student__profile",
+    ).order_by("school_class__name", "student__username")
 
-    context = {
+    return render(request, "courses/manage_enrollments.html", {
         "enrollments": enrollments,
-    }
-    return render(request, "courses/manage_enrollments.html", context)
+    })
 
 
 @login_required
