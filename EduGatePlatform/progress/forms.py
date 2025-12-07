@@ -1,5 +1,5 @@
 from django import forms
-from .models import Lesson, Homework, Quiz, Question, Choice
+from .models import Lesson, Homework, Quiz, Question, Choice, HomeworkSubmission
 
 
 class LessonForm(forms.ModelForm):
@@ -157,3 +157,23 @@ class ChoiceForm(forms.ModelForm):
             'text': forms.TextInput(attrs={'class': 'form-control'}),
             'is_correct': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
+class HomeworkSubmissionForm(forms.ModelForm):
+    class Meta:
+        model = HomeworkSubmission
+        fields = ["answer_text"]
+        labels = {
+            "answer_text": "Your Answer",
+        }
+        widgets = {
+            "answer_text": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 6,
+                "placeholder": "Write your answer here...",
+            }),
+        }
+
+    def clean_answer_text(self):
+        data = self.cleaned_data.get("answer_text", "").strip()
+        if not data:
+            raise forms.ValidationError("النص فاضي، اكتب إجابتك قبل الإرسال.")
+        return data

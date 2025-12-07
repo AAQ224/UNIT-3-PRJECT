@@ -37,16 +37,19 @@
     <div class="card shadow-sm border-0">
         <div class="card-body">
 
-            <form method="post">
-                {% csrf_token %}
+<form method="post">
+    {% csrf_token %}
 
-                <label class="form-label fw-bold">Your Answer</label>
-                <textarea name="answer" class="form-control" rows="6" placeholder="Write your answer here..."></textarea>
+    <label class="form-label fw-bold">Your Answer</label>
+    <textarea name="answer_text"
+              class="form-control"
+              rows="6"
+              placeholder="Write your answer here...">{{ submission.answer_text }}</textarea>
 
-                <button type="submit" class="btn btn-success w-100 mt-3">
-                    <i class="fas fa-paper-plane me-1"></i> Submit Answer
-                </button>
-            </form>
+    <button type="submit" class="btn btn-success w-100 mt-3">
+        <i class="fas fa-paper-plane me-1"></i> Submit Answer
+    </button>
+</form>
 
         </div>
     </div>
