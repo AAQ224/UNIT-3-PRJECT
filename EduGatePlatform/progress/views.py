@@ -53,7 +53,7 @@ def lesson_create(request, classsubject_id):
         return HttpResponseForbidden("Not allowed")
 
     if request.method == "POST":
-        form = LessonForm(request.POST)
+        form = LessonForm(request.POST, request.FILES)
         if form.is_valid():
             lesson = form.save(commit=False)
             lesson.class_subject = classsubject
@@ -65,7 +65,7 @@ def lesson_create(request, classsubject_id):
 
     return render(request, "progress/lesson_form.html", {
         "form": form,
-        "classsubject": classsubject,   # أصلحنا الكي هنا
+        "classsubject": classsubject,
         "mode": "create"
     })
 
@@ -880,4 +880,10 @@ def choice_delete(request, choice_id):
         "quiz": quiz,
         "question": question,
         "choice": choice,
+    })
+@login_required
+def lesson_detail(request, lesson_id):
+    lesson = get_object_or_404(Lesson, id=lesson_id)
+    return render(request, "progress/lesson_detail.html", {
+        "lesson": lesson,
     })

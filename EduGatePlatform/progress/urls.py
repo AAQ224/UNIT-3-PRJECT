@@ -36,6 +36,7 @@ urlpatterns = [
     path("quizzes/attempts/<int:attempt_id>/result/",views.quiz_attempt_result,name="quiz_attempt_result"),
     path('choices/<int:choice_id>/edit/', views.choice_update, name='choice_update'),
     path('choices/<int:choice_id>/delete/', views.choice_delete, name='choice_delete'),
+    path("lesson/<int:lesson_id>/", views.lesson_detail, name="lesson_detail"),
 
 
 ]
