@@ -110,6 +110,11 @@ EduGate is an online learning management system (LMS) built using Django. The sy
 
 
 ## UML Diagram :
-<img width="846" height="745" alt="UML_Class_Diagram" src="https://github.com/user-attachments/assets/d3c81b3d-c681-4396-8f93-ea829f4612c6" />
+<img width="1889" height="1530" alt="UML_Class_Diagram2" src="https://github.com/user-attachments/assets/68f4e9a5-b9bf-446a-9a9b-1a711edc58e6" />
 
 ## Wireframes :
+<img width="1213" height="863" alt="Parent_Dashboard" src="https://github.com/user-attachments/assets/f8b74dea-984c-4eff-96c4-223bdd021e89" />
+<img width="1214" height="864" alt="Student_Dashboard" src="https://github.com/user-attachments/assets/c66dbf58-4306-4555-ad2a-d5935b943790" />
+<img width="1215" height="866" alt="Teacher_Dashboard" src="https://github.com/user-attachments/assets/78afb644-a4e0-4713-85dc-8fba5e66cad3" />
+<img width="1214" height="865" alt="Admin" src="https://github.com/user-attachments/assets/5665828f-a61f-4939-ba87-6290566743e2" />
+<img width="1051" height="748" alt="Home" src="https://github.com/user-attachments/assets/f70dcfe9-19e8-473c-b990-cb80bb8566d9" />
