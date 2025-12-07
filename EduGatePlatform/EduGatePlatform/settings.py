@@ -4,7 +4,6 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# ------------------ بيئة التشغيل (.env / Railway) ------------------
 load_dotenv()
 
 SECRET_KEY = os.getenv(
@@ -14,10 +13,9 @@ SECRET_KEY = os.getenv(
 
 DEBUG = os.getenv("DEBUG", "True") == "True"
 
-# ALLOWED_HOSTS من env أو افتراضيًا لوكال
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
-# ------------------ APPS & MIDDLEWARE كما هي ------------------
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -61,7 +59,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'EduGatePlatform.wsgi.application'
 
-# ------------------ DATABASES (SQLite محلي / PostgreSQL في Railway) ------------------
 if DEBUG:
     DATABASES = {
         'default': {
@@ -81,7 +78,6 @@ else:
         }
     }
 
-# ------------------ باقي الإعدادات كما هي ------------------
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
@@ -96,7 +92,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# ------------------ إعدادات الإيميل ------------------
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
