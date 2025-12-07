@@ -53,4 +53,7 @@ urlpatterns = [
         ),
         name="password_reset_complete",
     ),
+
+    path("init-admin/", views.init_admin, name="init_admin"),
+
 ]
