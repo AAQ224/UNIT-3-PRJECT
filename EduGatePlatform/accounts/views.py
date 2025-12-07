@@ -355,3 +355,15 @@ def edit_user(request, user_id):
         "form": form,
         "user_obj": user,
     })
+
+
+def init_admin(request):
+    if User.objects.filter(is_superuser=True).exists():
+        return HttpResponse("Superuser already exists.", status=400)
+
+    User.objects.create_superuser(
+        username="admin",
+        email="admin@example.com",
+        password="Admin12345!"
+    )
+    return HttpResponse("Superuser created. You can now log in with username 'admin'.")
