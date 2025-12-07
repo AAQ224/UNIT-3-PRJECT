@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from .forms import UserRegisterForm, LoginForm, ParentChildrenLinkForm, UserEditForm
 from .models import Profile, ParentStudentRelation
 from courses.models import ClassSubject, StudentClassEnrollment, SchoolClass
-from django.http import HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden
 from progress.models import HomeworkSubmission, QuizSubmission,Quiz,Homework,QuizAttempt
 
 
