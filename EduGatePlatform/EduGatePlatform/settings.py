@@ -8,13 +8,17 @@ load_dotenv()
 
 SECRET_KEY = os.getenv(
     "SECRET_KEY",
-    "django-insecure-vibdmlr@ic=s=()@&$^m)@1nedtx@d$9=su(zk5-^#&m%l5vzz"  # dev فقط
+    "django-insecure-vibdmlr@ic=s=()@&$^m)@1nedtx@d$9=su(zk5-^#&m%l5vzz"
 )
 
 DEBUG = os.getenv("DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
-
+CSRF_TRUSTED_ORIGINS = [
+    "https://unit-3-prject-production.up.railway.app",
+    "http://127.0.0.1",
+    "http://localhost",
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
